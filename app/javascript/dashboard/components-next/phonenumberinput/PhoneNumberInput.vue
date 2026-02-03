@@ -4,7 +4,8 @@ import parsePhoneNumber from 'libphonenumber-js';
 import { useI18n } from 'vue-i18n';
 import countries from 'shared/constants/countries.js';
 import { useVuelidate } from '@vuelidate/core';
-import { required, minLength, numeric } from '@vuelidate/validators';
+import { required, minLength } from '@vuelidate/validators';
+import { normalizePhoneDigits } from 'shared/helpers/Validators';
 import {
   getActiveCountryCode,
   getActiveDialCode,
@@ -36,16 +37,24 @@ const modelValue = defineModel({
 
 const { t } = useI18n();
 
+// E.164 allows max 15 digits for subscriber number; allow a few extra for spaces/dashes/parens
+const PHONE_NUMBER_MAX_LENGTH = 15;
+
 const showDropdown = ref(false);
 const searchQuery = ref('');
 const activeCountryCode = ref(getActiveCountryCode());
 const activeDialCode = ref(getActiveDialCode());
 const phoneNumber = ref('');
 
+const phoneNumberValid = value => {
+  const digits = normalizePhoneDigits(value || '');
+  return digits.length >= 2 && /^\d+$/.test(digits);
+};
+
 const rules = {
   phoneNumber: {
     minLength: minLength(2),
-    numeric,
+    phoneNumberValid,
   },
   activeDialCode: {
     required,
@@ -113,7 +122,9 @@ const phoneNumberError = computed(() => {
 });
 
 const emitPhoneNumber = value => {
-  const newValue = value ? `${activeDialCode.value}${value}` : '';
+  const newValue = value
+    ? `${activeDialCode.value}${normalizePhoneDigits(value)}`
+    : '';
   modelValue.value = newValue;
 };
 
@@ -171,6 +182,7 @@ watch(
         type="tel"
         :placeholder="placeholder"
         :disabled="disabled"
+        :maxlength="PHONE_NUMBER_MAX_LENGTH"
         custom-input-class="!border-0 !outline-none h-8 !py-0.5 !bg-transparent ltr:!pl-1 rtl:!pr-1"
         class="w-full !flex-row"
       >

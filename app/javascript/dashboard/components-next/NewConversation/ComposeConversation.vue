@@ -236,6 +236,12 @@ const keyboardEvents = {
 };
 
 useKeyboardEvents(keyboardEvents);
+
+const open = () => {
+  showComposeNewConversation.value = true;
+};
+
+defineExpose({ open });
 </script>
 
 <template>

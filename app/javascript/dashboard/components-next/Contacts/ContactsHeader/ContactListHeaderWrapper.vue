@@ -19,6 +19,7 @@ import {
 } from 'dashboard/composables/useTransformKeys';
 
 import ContactsHeader from 'dashboard/components-next/Contacts/ContactsHeader/ContactHeader.vue';
+import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 import CreateNewContactDialog from 'dashboard/components-next/Contacts/ContactsForm/CreateNewContactDialog.vue';
 import ContactExportDialog from 'dashboard/components-next/Contacts/ContactsForm/ContactExportDialog.vue';
 import ContactImportDialog from 'dashboard/components-next/Contacts/ContactsForm/ContactImportDialog.vue';
@@ -51,6 +52,7 @@ const store = useStore();
 const router = useRouter();
 
 const createNewContactDialogRef = ref(null);
+const composeConversationRef = ref(null);
 const contactExportDialogRef = ref(null);
 const contactImportDialogRef = ref(null);
 const createSegmentDialogRef = ref(null);
@@ -71,6 +73,9 @@ const activeSegmentName = computed(() => props.activeSegment?.name);
 const openCreateNewContactDialog = async () => {
   await createNewContactDialogRef.value?.contactsFormRef.resetValidation();
   createNewContactDialogRef.value?.dialogRef.open();
+};
+const openComposeConversation = () => {
+  composeConversationRef.value?.open();
 };
 const openContactImportDialog = () =>
   contactImportDialogRef.value?.dialogRef.open();
@@ -282,10 +287,11 @@ defineExpose({
     :is-label-view="isLabelView"
     :is-active-view="isActiveView"
     :has-active-filters="hasAppliedFilters"
-    :button-label="t('CONTACTS_LAYOUT.HEADER.MESSAGE_BUTTON')"
+    :button-label="t('CONTACTS_LAYOUT.HEADER.CREATE_CONTACT_BUTTON')"
     @search="emit('search', $event)"
     @update:sort="emit('update:sort', $event)"
     @add="openCreateNewContactDialog"
+    @message="openComposeConversation"
     @import="openContactImportDialog"
     @export="openContactExportDialog"
     @filter="onToggleFilters"
@@ -310,6 +316,9 @@ defineExpose({
     </template>
   </ContactsHeader>
 
+  <ComposeConversation ref="composeConversationRef">
+    <template #trigger><span class="hidden" /></template>
+  </ComposeConversation>
   <CreateNewContactDialog ref="createNewContactDialogRef" @create="onCreate" />
   <ContactExportDialog ref="contactExportDialogRef" @export="onExport" />
   <ContactImportDialog ref="contactImportDialogRef" @import="onImport" />

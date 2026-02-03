@@ -1,4 +1,12 @@
 /**
+ * Strips non-digit characters from a string (spaces, dashes, parentheses, etc.).
+ * @param {string} value - The string to normalize.
+ * @returns {string} Only digits from the input.
+ */
+export const normalizePhoneDigits = value =>
+  (value || '').replace(/\D/g, '');
+
+/**
  * Checks if a string is a valid E.164 phone number format.
  * @param {string} value - The phone number to validate.
  * @returns {boolean} True if the number is in E.164 format, false otherwise.
@@ -7,13 +15,16 @@ export const isPhoneE164 = value => !!value.match(/^\+[1-9]\d{1,14}$/);
 
 /**
  * Validates a phone number after removing the dial code.
+ * Normalizes the local part (strips spaces, dashes, etc.) before validation.
  * @param {string} value - The full phone number including dial code.
  * @param {string} dialCode - The dial code to remove before validation.
  * @returns {boolean} True if the number (without dial code) is valid, false otherwise.
  */
 export const isPhoneNumberValid = (value, dialCode) => {
-  const number = value.replace(dialCode, '');
-  return !!number.match(/^[0-9]{1,14}$/);
+  const localPart = (value || '').replace(dialCode, '');
+  if (/[A-Za-z]/.test(localPart)) return false;
+  const digits = normalizePhoneDigits(localPart);
+  return !!digits.match(/^[0-9]{1,14}$/);
 };
 
 /**

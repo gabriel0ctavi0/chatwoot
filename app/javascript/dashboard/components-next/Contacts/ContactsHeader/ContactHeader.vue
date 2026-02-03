@@ -4,7 +4,6 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import ContactSortMenu from './components/ContactSortMenu.vue';
 import ContactMoreActions from './components/ContactMoreActions.vue';
-import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 
 defineProps({
   showSearch: { type: Boolean, default: true },
@@ -28,6 +27,7 @@ const emit = defineEmits([
   'export',
   'createSegment',
   'deleteSegment',
+  'message',
 ]);
 </script>
 
@@ -110,14 +110,11 @@ const emit = defineEmits([
               @add="emit('add')"
               @import="emit('import')"
               @export="emit('export')"
+              @message="emit('message')"
             />
           </div>
           <div class="w-px h-4 bg-n-strong" />
-          <ComposeConversation>
-            <template #trigger="{ toggle }">
-              <Button :label="buttonLabel" size="sm" @click="toggle" />
-            </template>
-          </ComposeConversation>
+          <Button :label="buttonLabel" size="sm" @click="emit('add')" />
         </div>
       </div>
     </div>

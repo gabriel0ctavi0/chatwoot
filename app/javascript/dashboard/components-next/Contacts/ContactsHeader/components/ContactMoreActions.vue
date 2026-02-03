@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 import Button from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 
-const emit = defineEmits(['add', 'import', 'export']);
+const emit = defineEmits(['add', 'import', 'export', 'message']);
 
 const { t } = useI18n();
 
@@ -15,6 +15,12 @@ const contactMenuItems = [
     action: 'add',
     value: 'add',
     icon: 'i-lucide-plus',
+  },
+  {
+    label: t('CONTACTS_LAYOUT.HEADER.MESSAGE_BUTTON'),
+    action: 'message',
+    value: 'message',
+    icon: 'i-lucide-message-circle',
   },
   {
     label: t('CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION.EXPORT_CONTACT'),
@@ -38,6 +44,8 @@ const handleContactAction = ({ action }) => {
     emit('import');
   } else if (action === 'export') {
     emit('export');
+  } else if (action === 'message') {
+    emit('message');
   }
 };
 </script>

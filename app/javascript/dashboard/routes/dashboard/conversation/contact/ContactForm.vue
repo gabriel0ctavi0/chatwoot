@@ -7,7 +7,10 @@ import {
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
 import countries from 'shared/constants/countries.js';
-import { isPhoneNumberValid } from 'shared/helpers/Validators';
+import {
+  isPhoneNumberValid,
+  normalizePhoneDigits,
+} from 'shared/helpers/Validators';
 import parsePhoneNumber from 'libphonenumber-js';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
@@ -101,15 +104,15 @@ export default {
       return '';
     },
     setPhoneNumber() {
-      if (this.parsePhoneNumber && this.parsePhoneNumber.countryCallingCode) {
-        return this.phoneNumber;
-      }
       if (this.phoneNumber === '' && this.activeDialCode !== '') {
         return '';
       }
-      return this.activeDialCode
-        ? `${this.activeDialCode}${this.phoneNumber}`
-        : '';
+      if (!this.activeDialCode) return '';
+      const localPart = (this.phoneNumber || '').replace(
+        this.activeDialCode,
+        ''
+      );
+      return `${this.activeDialCode}${normalizePhoneDigits(localPart)}`;
     },
   },
   watch: {

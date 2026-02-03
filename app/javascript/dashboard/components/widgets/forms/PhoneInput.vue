@@ -202,6 +202,7 @@ export default {
         ref="phoneNumberInput"
         :value="phoneNumber"
         type="tel"
+        maxlength="15"
         class="no-margin !rounded-tl-none !rounded-bl-none !outline-none !border-0 font-normal !w-full !bg-transparent text-base !px-1.5 placeholder:font-normal"
         :placeholder="placeholder"
         :readonly="readonly"
