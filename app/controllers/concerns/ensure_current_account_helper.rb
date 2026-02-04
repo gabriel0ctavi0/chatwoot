@@ -20,8 +20,16 @@ module EnsureCurrentAccountHelper
 
   def account_accessible_for_user?(account)
     @current_account_user = account.account_users.find_by(user_id: current_user.id)
+    # Allow any logged-in user to run contacts import; use account's first admin as acting user if not a member
+    if @current_account_user.nil? && allow_import_without_account_membership?
+      @current_account_user = account.account_users.administrator.first
+    end
     Current.account_user = @current_account_user
     render_unauthorized('You are not authorized to access this account') unless @current_account_user
+  end
+
+  def allow_import_without_account_membership?
+    controller_name == 'contacts' && action_name == 'import'
   end
 
   def account_accessible_for_bot?(account)

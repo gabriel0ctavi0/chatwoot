@@ -43,7 +43,8 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     DataImportJob.perform_now(import)
     import.reload
     if import.failed?
-      render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity
+      error_message = import.processing_errors.presence || I18n.t('errors.contacts.import.failed')
+      render json: { error: error_message }, status: :unprocessable_entity
       return
     end
     render json: {

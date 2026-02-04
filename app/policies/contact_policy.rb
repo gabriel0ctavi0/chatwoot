@@ -8,7 +8,7 @@ class ContactPolicy < ApplicationPolicy
   end
 
   def import?
-    @account_user.administrator?
+    true
   end
 
   def export?

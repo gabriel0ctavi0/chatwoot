@@ -24,8 +24,9 @@ class DataImportJob < ApplicationJob
     contacts, rejected_contacts, contact_tags = parse_csv_and_build_contacts
 
     if contacts.empty? && rejected_contacts.any?
-      @data_import.update!(status: :failed)
-      raise DataImport::AllRowsInvalidError, I18n.t('errors.contacts.import.no_valid_records')
+      msg = I18n.t('errors.contacts.import.no_valid_records')
+      @data_import.update!(status: :failed, processing_errors: msg)
+      raise DataImport::AllRowsInvalidError, msg
     end
 
     import_contacts(contacts)
@@ -69,6 +70,7 @@ class DataImportJob < ApplicationJob
     'pais' => :country,
     'country' => :country,
     'nome da empresa' => :company_name,
+    'nome empresa' => :company_name,
     'company_name' => :company_name,
     'company' => :company_name,
     'tag' => :tag,
@@ -125,7 +127,7 @@ class DataImportJob < ApplicationJob
   end
 
   def handle_csv_error(error)
-    @data_import.update!(status: :failed)
+    @data_import.update!(status: :failed, processing_errors: error.message)
   end
 
   def csv_headers
