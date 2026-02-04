@@ -14,9 +14,12 @@ class Contacts::SyncAttributes
 
   def update_contact_location_and_country_code
     # Ensure that location and country_code are updated from additional_attributes.
+    # Prefer country_code (ISO 2-letter) when present so frontend lookup works; fall back to country (name) for backward compat.
     # TODO: Remove this once all contacts are updated and both the location and country_code fields are standardized throughout the app.
     @contact.location = @contact.additional_attributes['city']
-    @contact.country_code = @contact.additional_attributes['country']
+    code = @contact.additional_attributes['country_code'].presence
+    code ||= @contact.additional_attributes['country'] if @contact.additional_attributes['country'].to_s.match?(/\A[A-Za-z]{2}\z/)
+    @contact.country_code = code.presence || @contact.additional_attributes['country']
   end
 
   def set_contact_type

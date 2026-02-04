@@ -89,17 +89,38 @@ class DataImport::ContactManager
     s.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').strip
   end
 
+  # Maps common country names (CSV) to ISO 3166-1 alpha-2 codes so the frontend can resolve the country correctly.
+  COUNTRY_NAME_TO_CODE = {
+    'brazil' => 'BR', 'brasil' => 'BR', 'united states' => 'US', 'united states of america' => 'US', 'usa' => 'US',
+    'argentina' => 'AR', 'portugal' => 'PT', 'spain' => 'ES', 'mexico' => 'MX', 'colombia' => 'CO', 'peru' => 'PE',
+    'chile' => 'CL', 'ecuador' => 'EC', 'venezuela' => 'VE', 'bolivia' => 'BO', 'paraguay' => 'PY', 'uruguay' => 'UY',
+    'united kingdom' => 'GB', 'uk' => 'GB', 'great britain' => 'GB', 'france' => 'FR', 'germany' => 'DE', 'italy' => 'IT',
+    'canada' => 'CA', 'australia' => 'AU', 'india' => 'IN', 'japan' => 'JP', 'china' => 'CN', 'south africa' => 'ZA',
+    'zimbabwe' => 'ZW'
+  }.freeze
+
   def update_contact_attributes(params, contact)
     name_value = sanitize_name_string(params[:name]).presence
     name_value ||= [params[:first_name], params[:last_name]].map { |v| sanitize_name_string(v).presence }.compact.join(' ') if params[:first_name].present? || params[:last_name].present?
     contact.name = name_value if name_value.present?
     contact.additional_attributes ||= {}
     contact.additional_attributes[:city] = params[:city].to_s.strip.presence if params[:city].present?
-    contact.additional_attributes[:country] = params[:country].to_s.strip.presence if params[:country].present?
+    country_value = params[:country].to_s.strip.presence
+    if country_value.present?
+      contact.additional_attributes[:country] = country_value
+      code = resolve_country_code(country_value)
+      contact.additional_attributes[:country_code] = code if code.present?
+    end
     company_value = (params[:company_name].presence || params[:company].presence).to_s.strip.presence
     contact.additional_attributes[:company_name] = company_value if company_value.present?
     custom_keys = params.keys - %i[identifier email name first_name last_name phone_number city country company_name company tag label]
     custom_params = params.slice(*custom_keys)
     contact.assign_attributes(custom_attributes: contact.custom_attributes.merge(custom_params)) if custom_params.present?
+  end
+
+  def resolve_country_code(name)
+    return name if name.to_s.match?(/\A[A-Za-z]{2}\z/)
+
+    COUNTRY_NAME_TO_CODE[name.to_s.downcase.strip]
   end
 end
