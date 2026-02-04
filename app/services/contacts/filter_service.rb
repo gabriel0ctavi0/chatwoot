@@ -19,14 +19,23 @@ class Contacts::FilterService < FilterService
   end
 
   def filter_values(query_hash)
-    current_val = query_hash['values'][0]
-    if query_hash['attribute_key'] == 'phone_number'
+    attribute_key = query_hash['attribute_key']
+    values = query_hash['values']
+
+    return tag_filter_values(values) if attribute_key.in?(%w[labels contact_tags])
+
+    current_val = values.is_a?(Array) ? values[0] : values
+    if attribute_key == 'phone_number'
       "+#{current_val&.delete('+')}"
-    elsif query_hash['attribute_key'] == 'country_code'
-      current_val.downcase
+    elsif attribute_key == 'country_code'
+      current_val.to_s.downcase
     else
       current_val.is_a?(String) ? current_val.downcase : current_val
     end
+  end
+
+  def tag_filter_values(values)
+    Array(values).map { |v| v.to_s.strip.downcase.presence }.compact.uniq
   end
 
   def base_relation

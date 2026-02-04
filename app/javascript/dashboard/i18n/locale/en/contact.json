@@ -450,6 +450,10 @@
           "LABELS": {
             "LABEL": "Labels",
             "PLACEHOLDER": "Select labels"
+          },
+          "TAGS": {
+            "LABEL": "Tags",
+            "PLACEHOLDER": "Select tags"
           }
         },
         "UPDATE_BUTTON": "Update contact",

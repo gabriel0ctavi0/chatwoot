@@ -37,6 +37,7 @@ const props = defineProps({
   activeSegment: { type: Object, default: null },
   hasAppliedFilters: { type: Boolean, default: false },
   isLabelView: { type: Boolean, default: false },
+  isTagView: { type: Boolean, default: false },
   isActiveView: { type: Boolean, default: false },
 });
 
@@ -298,6 +299,7 @@ defineExpose({
     :header-title="headerTitle"
     :is-segments-view="hasActiveSegments"
     :is-label-view="isLabelView"
+    :is-tag-view="isTagView"
     :is-active-view="isActiveView"
     :has-active-filters="hasAppliedFilters"
     :button-label="t('CONTACTS_LAYOUT.HEADER.CREATE_CONTACT_BUTTON')"

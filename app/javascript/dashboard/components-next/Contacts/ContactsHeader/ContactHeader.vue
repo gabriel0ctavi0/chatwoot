@@ -15,6 +15,7 @@ defineProps({
   isSegmentsView: { type: Boolean, default: false },
   hasActiveFilters: { type: Boolean, default: false },
   isLabelView: { type: Boolean, default: false },
+  isTagView: { type: Boolean, default: false },
   isActiveView: { type: Boolean, default: false },
 });
 
@@ -61,7 +62,7 @@ const emit = defineEmits([
         </div>
         <div class="flex items-center flex-shrink-0 gap-4">
           <div class="flex items-center gap-2">
-            <div v-if="!isLabelView && !isActiveView" class="relative">
+            <div v-if="!isLabelView && !isTagView && !isActiveView" class="relative">
               <Button
                 id="toggleContactsFilterButton"
                 :icon="
@@ -85,6 +86,7 @@ const emit = defineEmits([
                 hasActiveFilters &&
                 !isSegmentsView &&
                 !isLabelView &&
+                !isTagView &&
                 !isActiveView
               "
               icon="i-lucide-save"
@@ -94,7 +96,7 @@ const emit = defineEmits([
               @click="emit('createSegment')"
             />
             <Button
-              v-if="isSegmentsView && !isLabelView && !isActiveView"
+              v-if="isSegmentsView && !isLabelView && !isTagView && !isActiveView"
               icon="i-lucide-trash"
               color="slate"
               size="sm"

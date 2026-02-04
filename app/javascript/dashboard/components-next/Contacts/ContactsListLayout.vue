@@ -49,12 +49,16 @@ const isActiveView = computed(() => {
 const isLabelView = computed(
   () => route.name === 'contacts_dashboard_labels_index'
 );
+const isTagView = computed(
+  () => route.name === 'contacts_dashboard_tags_index'
+);
 
 const showActiveFiltersPreview = computed(() => {
   return (
     (props.hasAppliedFilters || !isNotSegmentView.value) &&
     !props.isFetchingList &&
     !isLabelView.value &&
+    !isTagView.value &&
     !isActiveView.value
   );
 });
@@ -83,7 +87,7 @@ const showPagination = computed(() => {
     <div class="flex flex-col w-full h-full transition-all duration-300">
       <ContactListHeaderWrapper
         ref="contactListHeaderWrapper"
-        :show-search="isNotSegmentView && !isActiveView"
+        :show-search="isNotSegmentView && !isActiveView && !isTagView"
         :search-value="searchValue"
         :active-sort="activeSort"
         :active-ordering="activeOrdering"
@@ -91,8 +95,9 @@ const showPagination = computed(() => {
         :active-segment="activeSegment"
         :segments-id="segmentsId"
         :has-applied-filters="hasAppliedFilters"
-        :is-label-view="isLabelView"
-        :is-active-view="isActiveView"
+    :is-label-view="isLabelView"
+    :is-tag-view="isTagView"
+    :is-active-view="isActiveView"
         @update:sort="emit('update:sort', $event)"
         @search="emit('search', $event)"
         @apply-filter="emit('applyFilter', $event)"

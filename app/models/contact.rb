@@ -47,6 +47,8 @@ class Contact < ApplicationRecord
   include Labelable
   include LlmFormattable
 
+  acts_as_taggable_on :contact_tags
+
   validates :account_id, presence: true
   validates :email, allow_blank: true, uniqueness: { scope: [:account_id], case_sensitive: false },
                     format: { with: Devise.email_regexp, message: I18n.t('errors.contacts.email.invalid') }
@@ -248,6 +250,17 @@ class Contact < ApplicationRecord
       Time.zone.now,
       contact_data: push_event_data.merge(account_id: account_id)
     )
+  end
+
+  def update_contact_tags(tags = nil)
+    update!(contact_tag_list: tags)
+  end
+
+  def add_contact_tags(new_tags = nil)
+    return if new_tags.blank?
+
+    combined = contact_tag_list + Array(new_tags)
+    update!(contact_tag_list: combined)
   end
 end
 Contact.include_mod_with('Concerns::Contact')

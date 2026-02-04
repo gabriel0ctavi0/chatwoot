@@ -59,6 +59,7 @@ const sortState = reactive({
 });
 
 const activeLabel = computed(() => route.params.label);
+const activeTag = computed(() => route.params.tag);
 const activeSegmentId = computed(() => route.params.segmentId);
 const isFetchingList = computed(
   () => uiFlags.value.isFetching || customViewsUiFlags.value.isFetching
@@ -126,6 +127,7 @@ const headerTitle = computed(() => {
   if (isActiveView.value) return t('CONTACTS_LAYOUT.HEADER.ACTIVE_TITLE');
   if (activeSegmentId.value) return activeSegment.value?.name;
   if (activeLabel.value) return `#${activeLabel.value}`;
+  if (activeTag.value) return `#${activeTag.value}`;
   return t('CONTACTS_LAYOUT.HEADER.TITLE');
 });
 
@@ -188,6 +190,7 @@ const getCommonFetchParams = (page = 1) => ({
   page,
   sortAttr: buildSortAttr(),
   label: activeLabel.value,
+  contactTag: activeTag.value,
 });
 
 const fetchContacts = async (page = 1) => {
@@ -274,7 +277,8 @@ const fetchContactsBasedOnContext = async page => {
   // If there are applied filters or active segment with query
   if (
     (hasAppliedFilters.value || activeSegment.value?.query) &&
-    !activeLabel.value
+    !activeLabel.value &&
+    !activeTag.value
   ) {
     const queryPayload =
       activeSegment.value?.query || filterQueryGenerator(appliedFilters.value);
@@ -390,7 +394,7 @@ watch(
 );
 
 watch(
-  [activeLabel, activeSegment, isActiveView],
+  [activeLabel, activeTag, activeSegment, isActiveView],
   () => {
     fetchContactsBasedOnContext(pageNumber.value);
   },
@@ -405,6 +409,7 @@ watch(searchQuery, value => {
     if (
       isActiveView.value ||
       activeLabel.value ||
+      activeTag.value ||
       activeSegment.value ||
       hasAppliedFilters.value
     )

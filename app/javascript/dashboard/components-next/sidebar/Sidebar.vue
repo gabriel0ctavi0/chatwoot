@@ -146,6 +146,7 @@ useEventListener(document, 'touchend', onResizeEnd);
 
 const inboxes = useMapGetter('inboxes/getInboxes');
 const labels = useMapGetter('labels/getLabelsOnSidebar');
+const contactTags = useMapGetter('contactTags/getContactTagsOnSidebar');
 const teams = useMapGetter('teams/getMyTeams');
 const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
 const conversationCustomViews = useMapGetter(
@@ -154,6 +155,7 @@ const conversationCustomViews = useMapGetter(
 
 onMounted(() => {
   store.dispatch('labels/get');
+  store.dispatch('contactTags/get');
   store.dispatch('inboxes/get');
   store.dispatch('notifications/unReadCount');
   store.dispatch('teams/get');
@@ -434,6 +436,32 @@ const menuItems = computed(() => {
             ],
           })),
         },
+        ...(contactTags.value?.length > 0
+          ? [
+              {
+                name: 'Contact Tags',
+                icon: 'i-lucide-tag',
+                label: t('SIDEBAR.TAGS'),
+                children: contactTags.value.map(tag => ({
+                  name: `tag-${tag.title}-${tag.id}`,
+                  label: tag.title,
+                  icon: h('span', {
+                    class: `size-[8px] rounded-sm`,
+                    style: { backgroundColor: tag.color },
+                  }),
+                  to: accountScopedRoute(
+                    'contacts_dashboard_tags_index',
+                    { tag: tag.title },
+                    { page: 1, search: undefined }
+                  ),
+                  activeOn: [
+                    'contacts_dashboard_tags_index',
+                    'contacts_edit_tag',
+                  ],
+                })),
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -601,6 +629,12 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.LABELS'),
           icon: 'i-lucide-tags',
           to: accountScopedRoute('labels_list'),
+        },
+        {
+          name: 'Settings Tags',
+          label: t('SIDEBAR.TAGS'),
+          icon: 'i-lucide-tag',
+          to: accountScopedRoute('contact_tags_list'),
         },
         {
           name: 'Settings Custom Attributes',

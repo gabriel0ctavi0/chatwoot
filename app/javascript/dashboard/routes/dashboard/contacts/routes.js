@@ -33,6 +33,12 @@ export const routes = [
         meta: commonMeta,
       },
       {
+        path: 'tags/:tag',
+        name: 'contacts_dashboard_tags_index',
+        component: ContactsIndex,
+        meta: commonMeta,
+      },
+      {
         path: 'active',
         name: 'contacts_dashboard_active',
         component: ContactsIndex,
@@ -60,6 +66,12 @@ export const routes = [
       {
         path: 'labels/:label',
         name: 'contacts_edit_label',
+        component: ContactManageView,
+        meta: commonMeta,
+      },
+      {
+        path: 'tags/:tag',
+        name: 'contacts_edit_tag',
         component: ContactManageView,
         meta: commonMeta,
       },

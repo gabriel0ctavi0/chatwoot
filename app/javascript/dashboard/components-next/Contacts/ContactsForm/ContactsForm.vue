@@ -59,6 +59,7 @@ const defaultState = {
   lastName: '',
   phoneNumber: '',
   labelList: [],
+  contactTagList: [],
   additionalAttributes: {
     description: '',
     companyName: '',
@@ -79,10 +80,18 @@ const defaultState = {
 const state = reactive({ ...defaultState });
 
 const allLabels = useMapGetter('labels/getLabels');
+const allContactTags = useMapGetter('contactTags/getContactTags');
 const getContactLabels = useMapGetter('contactLabels/getContactLabels');
 
 const labelOptions = computed(() =>
   (allLabels.value || []).map(({ title }) => ({ label: title, value: title }))
+);
+
+const tagOptions = computed(() =>
+  (allContactTags.value || []).map(({ title }) => ({
+    label: title,
+    value: title,
+  }))
 );
 
 const validationRules = {
@@ -119,6 +128,9 @@ const prepareStateBasedOnProps = () => {
   const labelList = Array.isArray(contactLabels)
     ? contactLabels.map(l => (typeof l === 'string' ? l : l?.title)).filter(Boolean)
     : [];
+  const contactTagList = Array.isArray(props.contactData?.contact_tag_list)
+    ? [...props.contactData.contact_tag_list]
+    : [];
 
   Object.assign(state, {
     id,
@@ -128,6 +140,7 @@ const prepareStateBasedOnProps = () => {
     email: emailAddress,
     phoneNumber,
     labelList,
+    contactTagList,
     additionalAttributes: {
       description,
       companyName,
@@ -232,8 +245,14 @@ const handleLabelListChange = value => {
   emit('update', state);
 };
 
+const handleContactTagListChange = value => {
+  state.contactTagList = value || [];
+  emit('update', state);
+};
+
 const store = useStore();
 onMounted(() => {
+  store.dispatch('contactTags/get');
   if (props.contactData?.id && !props.isNewContact) {
     store.dispatch('contactLabels/get', props.contactData.id);
   }
@@ -321,6 +340,17 @@ defineExpose({
             :options="labelOptions"
             :placeholder="t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.LABELS.PLACEHOLDER')"
             @update:model-value="handleLabelListChange"
+          />
+        </div>
+        <div v-if="tagOptions.length > 0" class="flex flex-col gap-1 sm:col-span-2">
+          <label class="text-sm text-n-slate-12">
+            {{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.LABEL') }}
+          </label>
+          <TagMultiSelectComboBox
+            :model-value="state.contactTagList"
+            :options="tagOptions"
+            :placeholder="t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.PLACEHOLDER')"
+            @update:model-value="handleContactTagListChange"
           />
         </div>
       </div>

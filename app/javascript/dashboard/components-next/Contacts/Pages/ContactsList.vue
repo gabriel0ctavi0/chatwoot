@@ -56,6 +56,7 @@ const onClickViewDetails = async id => {
   const routeTypes = {
     contacts_dashboard_segments_index: ['contacts_edit_segment', 'segmentId'],
     contacts_dashboard_labels_index: ['contacts_edit_label', 'label'],
+    contacts_dashboard_tags_index: ['contacts_edit_tag', 'tag'],
   };
   const [name, paramKey] = routeTypes[route.name] || ['contacts_edit'];
   const params = {

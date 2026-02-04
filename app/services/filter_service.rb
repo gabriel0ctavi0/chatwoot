@@ -50,8 +50,13 @@ class FilterService
     return conversation_priority_values(values) if attribute_key == 'priority'
     return message_type_values(values) if attribute_key == 'message_type'
     return downcase_array_values(values) if attribute_key == 'content'
+    return label_filter_values(values) if attribute_key == 'labels'
 
     case_insensitive_values(query_hash)
+  end
+
+  def label_filter_values(values)
+    Array(values).map { |v| v.to_s.strip.downcase.presence }.compact.uniq
   end
 
   def downcase_array_values(values)
@@ -110,10 +115,11 @@ class FilterService
     model_name = filter_config[:entity]
     table_name = filter_config[:table_name]
     query_operator = query_hash[:query_operator]
+    tag_context = query_hash['attribute_key'] == 'contact_tags' ? 'contact_tags' : 'labels'
     @filter_values["value_#{current_index}"] = filter_values(query_hash)
 
     tag_model_relation_query =
-      "SELECT * FROM taggings WHERE taggings.taggable_id = #{table_name}.id AND taggings.taggable_type = '#{model_name}'"
+      "SELECT * FROM taggings WHERE taggings.taggable_id = #{table_name}.id AND taggings.taggable_type = '#{model_name}' AND taggings.context = '#{tag_context}'"
     tag_query =
       "AND taggings.tag_id IN (SELECT tags.id FROM tags WHERE tags.name IN (:value_#{current_index}))"
 

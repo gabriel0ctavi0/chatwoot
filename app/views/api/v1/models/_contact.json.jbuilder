@@ -8,6 +8,7 @@ json.blocked resource.blocked
 json.identifier resource.identifier
 json.thumbnail resource.avatar_url
 json.custom_attributes resource.custom_attributes
+json.contact_tag_list resource.contact_tag_list.respond_to?(:to_a) ? resource.contact_tag_list.to_a : resource.contact_tag_list.to_s.split(',').map(&:strip).reject(&:blank?)
 json.last_activity_at resource.last_activity_at.to_i if resource[:last_activity_at].present?
 json.created_at resource.created_at.to_i if resource[:created_at].present?
 # we only want to output contact inbox when its /contacts endpoints

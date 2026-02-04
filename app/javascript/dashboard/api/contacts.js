@@ -1,13 +1,22 @@
 /* global axios */
 import ApiClient from './ApiClient';
 
-export const buildContactParams = (page, sortAttr, label, search) => {
+export const buildContactParams = (
+  page,
+  sortAttr,
+  label,
+  search,
+  contactTag = ''
+) => {
   let params = `include_contact_inboxes=false&page=${page}&sort=${sortAttr}`;
   if (search) {
     params = `${params}&q=${search}`;
   }
   if (label) {
     params = `${params}&labels[]=${label}`;
+  }
+  if (contactTag) {
+    params = `${params}&contact_tags[]=${contactTag}`;
   }
   return params;
 };
@@ -17,12 +26,13 @@ class ContactAPI extends ApiClient {
     super('contacts', { accountScoped: true });
   }
 
-  get(page, sortAttr = 'name', label = '') {
+  get(page, sortAttr = 'name', label = '', contactTag = '') {
     let requestURL = `${this.url}?${buildContactParams(
       page,
       sortAttr,
       label,
-      ''
+      '',
+      contactTag
     )}`;
     return axios.get(requestURL);
   }

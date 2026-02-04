@@ -97,17 +97,20 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def create
     ActiveRecord::Base.transaction do
-      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url, :label_list))
+      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url, :label_list, :contact_tag_list))
       @contact.save!
       @contact.update_labels(permitted_params[:label_list]) if permitted_params[:label_list].present?
+      @contact.update_contact_tags(permitted_params[:contact_tag_list]) if permitted_params[:contact_tag_list].present?
       @contact_inbox = build_contact_inbox
       process_avatar_from_url
     end
   end
 
   def update
-    @contact.assign_attributes(contact_update_params)
+    contact_tag_list = permitted_params[:contact_tag_list]
+    @contact.assign_attributes(contact_update_params.except(:contact_tag_list))
     @contact.save!
+    @contact.update_contact_tags(contact_tag_list) if permitted_params.key?(:contact_tag_list)
     process_avatar_from_url
   end
 
@@ -137,6 +140,11 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
 
     @resolved_contacts = @resolved_contacts.tagged_with(params[:labels], any: true) if params[:labels].present?
+    if params[:contact_tags].present?
+      @resolved_contacts = @resolved_contacts.tagged_with(
+        params[:contact_tags], on: :contact_tags, any: true
+      )
+    end
     @resolved_contacts
   end
 
@@ -186,7 +194,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def permitted_params
     params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url,
-                  additional_attributes: {}, custom_attributes: {}, label_list: [])
+                  additional_attributes: {}, custom_attributes: {}, label_list: [], contact_tag_list: [])
   end
 
   def contact_custom_attributes
@@ -202,7 +210,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def contact_update_params
-    permitted_params.except(:custom_attributes, :avatar_url)
+    permitted_params.except(:custom_attributes, :avatar_url, :contact_tag_list)
                     .merge({ custom_attributes: contact_custom_attributes })
                     .merge({ additional_attributes: contact_additional_attributes })
   end

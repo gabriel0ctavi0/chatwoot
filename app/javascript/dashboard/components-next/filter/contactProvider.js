@@ -51,6 +51,7 @@ export function useContactFilterContext() {
 
   const contactAttributes = useMapGetter('attributes/getContactAttributes');
   const labels = useMapGetter('labels/getLabels');
+  const contactTags = useMapGetter('contactTags/getContactTags');
 
   const {
     equalityOperators,
@@ -194,6 +195,20 @@ export function useContactFilterContext() {
       options: labels.value?.map(label => ({
         id: label.title,
         name: label.title,
+      })),
+      dataType: 'text',
+      filterOperators: equalityOperators.value,
+      attributeModel: 'standard',
+    },
+    {
+      attributeKey: CONTACT_ATTRIBUTES.CONTACT_TAGS,
+      value: CONTACT_ATTRIBUTES.CONTACT_TAGS,
+      attributeName: t('CONTACTS_FILTER.ATTRIBUTES.TAGS'),
+      label: t('CONTACTS_FILTER.ATTRIBUTES.TAGS'),
+      inputType: 'multiSelect',
+      options: contactTags.value?.map(tag => ({
+        id: tag.title,
+        name: tag.title,
       })),
       dataType: 'text',
       filterOperators: equalityOperators.value,

@@ -1,0 +1,67 @@
+{
+  "TAG_MGMT": {
+    "HEADER": "Tags",
+    "HEADER_BTN_TXT": "Add tag",
+    "LOADING": "Fetching tags",
+    "DESCRIPTION": "Tags help you categorize contacts. You can assign tags to contacts from the contact profile.",
+    "LEARN_MORE": "Learn more about tags",
+    "LIST": {
+      "404": "There are no tags available in this account.",
+      "TABLE_HEADER": {
+        "NAME": "Name",
+        "DESCRIPTION": "Description",
+        "COLOR": "Color"
+      }
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Tag Name",
+        "PLACEHOLDER": "Tag name",
+        "REQUIRED_ERROR": "Tag name is required",
+        "MINIMUM_LENGTH_ERROR": "Minimum length 2 is required",
+        "VALID_ERROR": "Only Alphabets, Numbers, Hyphen and Underscore are allowed"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Tag Description"
+      },
+      "COLOR": {
+        "LABEL": "Color"
+      },
+      "SHOW_ON_SIDEBAR": {
+        "LABEL": "Show tag on sidebar"
+      },
+      "EDIT": "Edit",
+      "CREATE": "Create",
+      "DELETE": "Delete",
+      "CANCEL": "Cancel"
+    },
+    "ADD": {
+      "TITLE": "Add tag",
+      "DESC": "Tags let you categorize contacts.",
+      "API": {
+        "SUCCESS_MESSAGE": "Tag added successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      }
+    },
+    "EDIT": {
+      "TITLE": "Edit tag",
+      "API": {
+        "SUCCESS_MESSAGE": "Tag updated successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      }
+    },
+    "DELETE": {
+      "API": {
+        "SUCCESS_MESSAGE": "Tag deleted successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      },
+      "CONFIRM": {
+        "TITLE": "Confirm Deletion",
+        "MESSAGE": "Are you sure to delete ",
+        "YES": "Yes, Delete ",
+        "NO": "No, Keep "
+      }
+    }
+  }
+}
