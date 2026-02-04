@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_30_061021) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_04_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -608,6 +608,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_061021) do
     t.index ["inbox_id"], name: "index_contact_inboxes_on_inbox_id"
     t.index ["pubsub_token"], name: "index_contact_inboxes_on_pubsub_token", unique: true
     t.index ["source_id"], name: "index_contact_inboxes_on_source_id"
+  end
+
+  create_table "contact_tags", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "color", default: "#1f93ff", null: false
+    t.boolean "show_on_sidebar"
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_contact_tags_on_account_id"
+    t.index ["title", "account_id"], name: "index_contact_tags_on_title_and_account_id", unique: true
   end
 
   create_table "contacts", id: :serial, force: :cascade do |t|
@@ -1271,6 +1283,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_30_061021) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "contact_tags", "accounts"
   add_foreign_key "inboxes", "portals"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").
