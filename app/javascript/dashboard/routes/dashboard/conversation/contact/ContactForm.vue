@@ -1,4 +1,5 @@
 <script>
+import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import {
   DuplicateContactException,
@@ -14,11 +15,13 @@ import {
 import parsePhoneNumber from 'libphonenumber-js';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
+import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
 
 export default {
   components: {
     NextButton,
     Avatar,
+    TagMultiSelectComboBox,
   },
   props: {
     contact: {
@@ -67,6 +70,7 @@ export default {
         { key: 'github', prefixURL: 'https://github.com/' },
         { key: 'tiktok', prefixURL: 'https://tiktok.com/@' },
       ],
+      contactTagList: [],
     };
   },
   validations: {
@@ -82,6 +86,16 @@ export default {
     bio: {},
   },
   computed: {
+    ...mapGetters({
+      contactTags: 'contactTags/getContactTags',
+      labels: 'labels/getLabels',
+    }),
+    tagOptions() {
+      return (this.contactTags || []).map(({ title }) => ({
+        label: title,
+        value: title,
+      }));
+    },
     parsePhoneNumber() {
       return parsePhoneNumber(this.phoneNumber);
     },
@@ -121,6 +135,8 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch('contactTags/get');
+    this.$store.dispatch('labels/get');
     this.setContactObject();
     this.setDialCode();
   },
@@ -130,6 +146,9 @@ export default {
     },
     onSuccess() {
       this.$emit('success');
+    },
+    handleContactTagListChange(value) {
+      this.contactTagList = value || [];
     },
     countryNameWithCode({ name, id }) {
       if (!id) return name;
@@ -179,6 +198,16 @@ export default {
         instagram: socialProfiles.instagram || '',
         tiktok: socialProfiles.tiktok || '',
       };
+      const rawTagList = this.contact.contact_tag_list ?? this.contact.contactTagList;
+      const rawList = Array.isArray(rawTagList) ? rawTagList : [];
+      const labelTitles = new Set(
+        (this.labels || [])
+          .map(l => l.title?.toLowerCase?.())
+          .filter(Boolean)
+      );
+      this.contactTagList = rawList.filter(
+        t => !labelTitles.has(String(t).toLowerCase())
+      );
     },
     getContactObject() {
       if (this.country === null) {
@@ -192,6 +221,7 @@ export default {
         name: this.name,
         email: this.email,
         phone_number: this.setPhoneNumber,
+        contactTagList: this.contactTagList,
         additional_attributes: {
           ...this.contact.additional_attributes,
           description: this.description,
@@ -393,6 +423,18 @@ export default {
       :label="$t('CONTACT_FORM.FORM.CITY.LABEL')"
       :placeholder="$t('CONTACT_FORM.FORM.CITY.PLACEHOLDER')"
     />
+
+    <div v-if="tagOptions.length > 0" class="flex flex-col gap-1 w-full">
+      <label class="text-sm text-n-slate-12">
+        {{ $t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.LABEL') }}
+      </label>
+      <TagMultiSelectComboBox
+        :model-value="contactTagList"
+        :options="tagOptions"
+        :placeholder="$t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.PLACEHOLDER')"
+        @update:model-value="handleContactTagListChange"
+      />
+    </div>
 
     <div class="w-full">
       <label>{{ $t('CONTACTS_PAGE.LIST.TABLE_HEADER.SOCIAL_PROFILES') }}</label>

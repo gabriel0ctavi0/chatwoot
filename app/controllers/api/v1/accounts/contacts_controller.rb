@@ -139,10 +139,13 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
     @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
 
-    @resolved_contacts = @resolved_contacts.tagged_with(params[:labels], any: true) if params[:labels].present?
-    if params[:contact_tags].present?
+    label_values = Array(params[:labels]).map { |l| l.to_s.strip.downcase.presence }.compact.uniq
+    @resolved_contacts = @resolved_contacts.tagged_with(label_values, any: true) if label_values.present?
+
+    contact_tag_values = Array(params[:contact_tags]).map { |t| t.to_s.strip.downcase.presence }.compact.uniq
+    if contact_tag_values.present?
       @resolved_contacts = @resolved_contacts.tagged_with(
-        params[:contact_tags], on: :contact_tags, any: true
+        contact_tag_values, on: :contact_tags, any: true
       )
     end
     @resolved_contacts

@@ -128,9 +128,17 @@ const prepareStateBasedOnProps = () => {
   const labelList = Array.isArray(contactLabels)
     ? contactLabels.map(l => (typeof l === 'string' ? l : l?.title)).filter(Boolean)
     : [];
-  const contactTagList = Array.isArray(props.contactData?.contact_tag_list)
-    ? [...props.contactData.contact_tag_list]
+  const labelTitles = new Set(
+    (allLabels.value || [])
+      .map(l => l.title?.toLowerCase?.())
+      .filter(Boolean)
+  );
+  const rawTagList = Array.isArray(props.contactData?.contact_tag_list)
+    ? props.contactData.contact_tag_list
     : [];
+  const contactTagList = rawTagList.filter(
+    t => !labelTitles.has(String(t).toLowerCase())
+  );
 
   Object.assign(state, {
     id,
@@ -335,6 +343,7 @@ defineExpose({
           <label class="text-sm text-n-slate-12">
             {{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.LABELS.LABEL') }}
           </label>
+          <span class="text-xs text-n-slate-11">{{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.LABELS.HINT') }}</span>
           <TagMultiSelectComboBox
             :model-value="state.labelList"
             :options="labelOptions"
@@ -346,6 +355,7 @@ defineExpose({
           <label class="text-sm text-n-slate-12">
             {{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.LABEL') }}
           </label>
+          <span class="text-xs text-n-slate-11">{{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.TAGS.HINT') }}</span>
           <TagMultiSelectComboBox
             :model-value="state.contactTagList"
             :options="tagOptions"

@@ -415,9 +415,9 @@ const menuItems = computed(() => {
           })),
         },
         {
-          name: 'Tagged With',
+          name: 'Labelled With',
           icon: 'i-lucide-tag',
-          label: t('SIDEBAR.TAGGED_WITH'),
+          label: t('SIDEBAR.LABELLED_WITH'),
           children: labels.value.map(label => ({
             name: `${label.title}-${label.id}`,
             label: label.title,
@@ -439,9 +439,9 @@ const menuItems = computed(() => {
         ...(contactTags.value?.length > 0
           ? [
               {
-                name: 'Contact Tags',
+                name: 'Tagged With',
                 icon: 'i-lucide-tag',
-                label: t('SIDEBAR.TAGS'),
+                label: t('SIDEBAR.TAGGED_WITH'),
                 children: contactTags.value.map(tag => ({
                   name: `tag-${tag.title}-${tag.id}`,
                   label: tag.title,

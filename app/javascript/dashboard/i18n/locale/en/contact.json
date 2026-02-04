@@ -449,11 +449,13 @@
           },
           "LABELS": {
             "LABEL": "Labels",
-            "PLACEHOLDER": "Select labels"
+            "PLACEHOLDER": "Select labels",
+            "HINT": "From Settings > Labels"
           },
           "TAGS": {
             "LABEL": "Tags",
-            "PLACEHOLDER": "Select tags"
+            "PLACEHOLDER": "Select tags",
+            "HINT": "From Settings > Tags"
           }
         },
         "UPDATE_BUTTON": "Update contact",
