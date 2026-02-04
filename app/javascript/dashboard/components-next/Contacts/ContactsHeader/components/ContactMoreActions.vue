@@ -11,12 +11,6 @@ const { t } = useI18n();
 
 const contactMenuItems = [
   {
-    label: t('CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION.ADD_CONTACT'),
-    action: 'add',
-    value: 'add',
-    icon: 'i-lucide-plus',
-  },
-  {
     label: t('CONTACTS_LAYOUT.HEADER.MESSAGE_BUTTON'),
     action: 'message',
     value: 'message',
@@ -38,9 +32,7 @@ const contactMenuItems = [
 const showActionsDropdown = ref(false);
 
 const handleContactAction = ({ action }) => {
-  if (action === 'add') {
-    emit('add');
-  } else if (action === 'import') {
+  if (action === 'import') {
     emit('import');
   } else if (action === 'export') {
     emit('export');

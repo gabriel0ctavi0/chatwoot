@@ -125,6 +125,7 @@ const onImport = async file => {
         : t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.SUCCESS_MESSAGE', { count });
     useAlert(message);
     useTrack(CONTACTS_EVENTS.IMPORT_SUCCESS);
+    window.location.reload();
   } catch (error) {
     useAlert(
       error.message ??

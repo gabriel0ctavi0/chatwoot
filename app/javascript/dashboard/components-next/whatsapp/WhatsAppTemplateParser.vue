@@ -1,4 +1,5 @@
 <script setup>
+/* global axios */
 /**
  * This component handles parsing and sending WhatsApp message templates.
  * It works as follows:
@@ -14,6 +15,7 @@ import { requiredIf } from '@vuelidate/validators';
 import { useI18n } from 'vue-i18n';
 
 import Input from 'dashboard/components-next/input/Input.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import {
   buildTemplateParameters,
   allKeysRequired,
@@ -123,6 +125,7 @@ const initializeTemplateParameters = () => {
     props.template,
     hasMediaHeader.value
   );
+  mediaHeaderFile.value = '';
 };
 
 const updateMediaUrl = value => {
@@ -133,6 +136,58 @@ const updateMediaUrl = value => {
 const updateMediaName = value => {
   processedParams.value.header ??= {};
   processedParams.value.header.media_name = value;
+};
+
+const mediaHeaderFile = ref('');
+const isUploadingMedia = ref(false);
+const mediaFileInputRef = ref(null);
+
+const getUploadUrl = () => {
+  const apiHost = window.chatwootConfig?.apiHost ?? '';
+  const parts = window.location.pathname.split('/');
+  const accountIndex = parts.indexOf('accounts');
+  const accountId =
+    accountIndex >= 0 && parts[accountIndex + 1] ? parts[accountIndex + 1] : '';
+  return `${apiHost}/api/v1/accounts/${accountId}/upload`;
+};
+
+const mediaAccept = computed(() => {
+  const format = headerComponent.value?.format?.toLowerCase();
+  if (format === 'image') return 'image/*';
+  if (format === 'video') return 'video/*';
+  if (format === 'document') return '.pdf,.doc,.docx';
+  return '*';
+});
+
+const onMediaFileSelected = async event => {
+  const file = event.target?.files?.[0];
+  if (!file) return;
+  isUploadingMedia.value = true;
+  mediaHeaderFile.value = '';
+  try {
+    const formData = new FormData();
+    formData.append('attachment', file);
+    const { data } = await axios.post(getUploadUrl(), formData);
+    if (data?.file_url) {
+      updateMediaUrl(data.file_url);
+      mediaHeaderFile.value = file.name;
+    }
+  } catch {
+    updateMediaUrl('');
+  } finally {
+    isUploadingMedia.value = false;
+    if (mediaFileInputRef.value) mediaFileInputRef.value.value = '';
+  }
+};
+
+const clearMediaFile = () => {
+  updateMediaUrl('');
+  mediaHeaderFile.value = '';
+  if (mediaFileInputRef.value) mediaFileInputRef.value.value = '';
+};
+
+const triggerMediaFileInput = () => {
+  mediaFileInputRef.value?.click();
 };
 
 const sendMessage = () => {
@@ -223,17 +278,39 @@ defineExpose({
             }) || `${formatType} Header`
           }}
         </p>
-        <div class="flex items-center mb-2.5">
-          <Input
-            :model-value="processedParams.header?.media_url || ''"
-            type="url"
-            class="flex-1"
-            :placeholder="
-              t('WHATSAPP_TEMPLATES.PARSER.MEDIA_URL_LABEL', {
-                type: formatType,
-              })
+        <div class="flex flex-wrap items-center gap-2 mb-2.5">
+          <input
+            ref="mediaFileInputRef"
+            type="file"
+            :accept="mediaAccept"
+            class="hidden"
+            @change="onMediaFileSelected"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="faded"
+            :label="
+              t('WHATSAPP_TEMPLATES.PARSER.CHOOSE_FILE') || 'Choose file'
             "
-            @update:model-value="updateMediaUrl"
+            :is-loading="isUploadingMedia"
+            @click="triggerMediaFileInput"
+          />
+          <span
+            v-if="mediaHeaderFile"
+            class="text-sm text-n-slate-11 truncate max-w-[12rem]"
+            :title="mediaHeaderFile"
+          >
+            {{ mediaHeaderFile }}
+          </span>
+          <Button
+            v-if="processedParams.header?.media_url"
+            type="button"
+            size="sm"
+            variant="ghost"
+            color="slate"
+            icon="i-lucide-x"
+            @click="clearMediaFile"
           />
         </div>
         <div v-if="isDocumentTemplate" class="flex items-center mb-2.5">
