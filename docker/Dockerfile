@@ -95,13 +95,11 @@ RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
   && rm -rf .git \
   && rm .gitignore
 
-RUN apt-get update -qq && \
-  apt-get install -y \
-    ffmpeg \
-    libvips \
-    imagemagick \
-    poppler-utils \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache \
+  ffmpeg \
+  imagemagick \
+  poppler-utils \
+  && rm -rf /var/cache/apk/*
 
 
 # final build stage
