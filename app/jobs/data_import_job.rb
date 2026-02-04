@@ -30,6 +30,7 @@ class DataImportJob < ApplicationJob
     end
 
     import_contacts(contacts)
+    ensure_labels_exist(contact_tags)
     apply_tags_to_contacts(contacts, contact_tags)
     update_data_import_status(contacts.length, rejected_contacts.length)
     save_failed_records_csv(rejected_contacts)
@@ -83,11 +84,26 @@ class DataImportJob < ApplicationJob
     end.compact
   end
 
+  def ensure_labels_exist(contact_tags)
+    tag_titles = contact_tags.map { |t| t.to_s.strip.downcase.presence }.compact.uniq
+    tag_titles.each do |title|
+      @data_import.account.labels.find_or_create_by!(title: title) do |label|
+        label.show_on_sidebar = true
+        label.color = random_label_color
+      end
+    end
+  end
+
+  def random_label_color
+    format('#%06x', rand(0x1000000))
+  end
+
   def apply_tags_to_contacts(contacts, contact_tags)
     contacts.each_with_index do |contact, i|
-      next if contact_tags[i].blank?
+      tag_value = contact_tags[i].to_s.strip.downcase.presence
+      next if tag_value.blank?
 
-      contact.add_labels([contact_tags[i]])
+      contact.add_labels([tag_value])
     end
   end
 
