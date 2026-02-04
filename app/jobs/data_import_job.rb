@@ -10,9 +10,10 @@ class DataImportJob < ApplicationJob
     @contact_manager = DataImport::ContactManager.new(@data_import.account)
     begin
       process_import_file
-      send_import_notification_to_admin
     rescue CSV::MalformedCSVError => e
       handle_csv_error(e)
+    rescue DataImport::AllRowsInvalidError
+      raise
     end
   end
 
@@ -20,9 +21,15 @@ class DataImportJob < ApplicationJob
 
   def process_import_file
     @data_import.update!(status: :processing)
-    contacts, rejected_contacts = parse_csv_and_build_contacts
+    contacts, rejected_contacts, contact_tags = parse_csv_and_build_contacts
+
+    if contacts.empty? && rejected_contacts.any?
+      @data_import.update!(status: :failed)
+      raise DataImport::AllRowsInvalidError, I18n.t('errors.contacts.import.no_valid_records')
+    end
 
     import_contacts(contacts)
+    apply_tags_to_contacts(contacts, contact_tags)
     update_data_import_status(contacts.length, rejected_contacts.length)
     save_failed_records_csv(rejected_contacts)
   end
@@ -30,19 +37,56 @@ class DataImportJob < ApplicationJob
   def parse_csv_and_build_contacts
     contacts = []
     rejected_contacts = []
+    contact_tags = []
 
     with_import_file do |file|
       csv_reader(file).each do |row|
-        current_contact = @contact_manager.build_contact(row.to_h.with_indifferent_access)
+        normalized = normalize_csv_row(row.to_h)
+        tag_value = normalized[:tag].to_s.strip.presence
+        current_contact = @contact_manager.build_contact(normalized.except(:tag))
         if current_contact.valid?
           contacts << current_contact
+          contact_tags << tag_value
         else
           append_rejected_contact(row, current_contact, rejected_contacts)
         end
       end
     end
 
-    [contacts, rejected_contacts]
+    [contacts, rejected_contacts, contact_tags]
+  end
+
+  CSV_HEADER_MAP = {
+    'nome' => :name,
+    'name' => :name,
+    'first_name' => :first_name,
+    'last_name' => :last_name,
+    'telefone' => :phone_number,
+    'phone_number' => :phone_number,
+    'cidade' => :city,
+    'city' => :city,
+    'país' => :country,
+    'pais' => :country,
+    'country' => :country,
+    'nome da empresa' => :company_name,
+    'company_name' => :company_name,
+    'company' => :company_name,
+    'tag' => :tag,
+    'label' => :tag
+  }.freeze
+
+  def normalize_csv_row(row_hash)
+    row_hash.with_indifferent_access.transform_keys do |key|
+      CSV_HEADER_MAP[key.to_s.strip.downcase] || key
+    end.compact
+  end
+
+  def apply_tags_to_contacts(contacts, contact_tags)
+    contacts.each_with_index do |contact, i|
+      next if contact_tags[i].blank?
+
+      contact.add_labels([contact_tags[i]])
+    end
   end
 
   def append_rejected_contact(row, contact, rejected_contacts)
@@ -80,17 +124,8 @@ class DataImportJob < ApplicationJob
     end
   end
 
-  def handle_csv_error(error) # rubocop:disable Lint/UnusedMethodArgument
+  def handle_csv_error(error)
     @data_import.update!(status: :failed)
-    send_import_failed_notification_to_admin
-  end
-
-  def send_import_notification_to_admin
-    AdministratorNotifications::AccountNotificationMailer.with(account: @data_import.account).contact_import_complete(@data_import).deliver_later
-  end
-
-  def send_import_failed_notification_to_admin
-    AdministratorNotifications::AccountNotificationMailer.with(account: @data_import.account).contact_import_failed.deliver_later
   end
 
   def csv_headers

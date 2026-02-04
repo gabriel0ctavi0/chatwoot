@@ -1,12 +1,14 @@
 <script setup>
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { required, email } from '@vuelidate/validators';
 import { useVuelidate } from '@vuelidate/core';
 import { splitName } from '@chatwoot/utils';
 import countries from 'shared/constants/countries.js';
+import { useMapGetter, useStore } from 'dashboard/composables/store';
 import Input from 'dashboard/components-next/input/Input.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
+import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import PhoneNumberInput from 'dashboard/components-next/phonenumberinput/PhoneNumberInput.vue';
 
@@ -56,6 +58,7 @@ const defaultState = {
   firstName: '',
   lastName: '',
   phoneNumber: '',
+  labelList: [],
   additionalAttributes: {
     description: '',
     companyName: '',
@@ -74,6 +77,13 @@ const defaultState = {
 };
 
 const state = reactive({ ...defaultState });
+
+const allLabels = useMapGetter('labels/getLabels');
+const getContactLabels = useMapGetter('contactLabels/getContactLabels');
+
+const labelOptions = computed(() =>
+  (allLabels.value || []).map(({ title }) => ({ label: title, value: title }))
+);
 
 const validationRules = {
   firstName: { required },
@@ -105,6 +115,10 @@ const prepareStateBasedOnProps = () => {
     city = '',
     socialProfiles = {},
   } = additionalAttributes || {};
+  const contactLabels = id ? getContactLabels.value(id) : [];
+  const labelList = Array.isArray(contactLabels)
+    ? contactLabels.map(l => (typeof l === 'string' ? l : l?.title)).filter(Boolean)
+    : [];
 
   Object.assign(state, {
     id,
@@ -113,6 +127,7 @@ const prepareStateBasedOnProps = () => {
     lastName,
     email: emailAddress,
     phoneNumber,
+    labelList,
     additionalAttributes: {
       description,
       companyName,
@@ -212,6 +227,18 @@ const handleCountrySelection = value => {
   emit('update', state);
 };
 
+const handleLabelListChange = value => {
+  state.labelList = value || [];
+  emit('update', state);
+};
+
+const store = useStore();
+onMounted(() => {
+  if (props.contactData?.id && !props.isNewContact) {
+    store.dispatch('contactLabels/get', props.contactData.id);
+  }
+});
+
 const resetValidation = () => {
   v$.value.$reset();
 };
@@ -285,6 +312,17 @@ defineExpose({
             "
           />
         </template>
+        <div v-if="labelOptions.length > 0" class="flex flex-col gap-1 sm:col-span-2">
+          <label class="text-sm text-n-slate-12">
+            {{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.LABELS.LABEL') }}
+          </label>
+          <TagMultiSelectComboBox
+            :model-value="state.labelList"
+            :options="labelOptions"
+            :placeholder="t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.FORM.LABELS.PLACEHOLDER')"
+            @update:model-value="handleLabelListChange"
+          />
+        </div>
       </div>
     </div>
     <div class="flex flex-col items-start gap-2">

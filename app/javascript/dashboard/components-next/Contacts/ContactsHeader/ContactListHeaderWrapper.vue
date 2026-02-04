@@ -111,11 +111,19 @@ const onCreate = async contact => {
 
 const onImport = async file => {
   try {
-    await store.dispatch('contacts/import', file);
+    const result = await store.dispatch('contacts/import', file);
     contactImportDialogRef.value?.dialogRef.close();
-    useAlert(
-      t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.SUCCESS_MESSAGE')
-    );
+    contactImportDialogRef.value?.reset?.();
+    const count = result?.processed_records ?? 0;
+    const failedCount = result?.failed_count ?? 0;
+    const message =
+      failedCount > 0
+        ? t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.SUCCESS_MESSAGE_WITH_FAILED', {
+            count,
+            failedCount,
+          })
+        : t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.SUCCESS_MESSAGE', { count });
+    useAlert(message);
     useTrack(CONTACTS_EVENTS.IMPORT_SUCCESS);
   } catch (error) {
     useAlert(
@@ -124,6 +132,10 @@ const onImport = async file => {
     );
     useTrack(CONTACTS_EVENTS.IMPORT_FAILURE);
   }
+};
+
+const onImportParseError = message => {
+  useAlert(message);
 };
 
 const onExport = async query => {
@@ -321,7 +333,11 @@ defineExpose({
   </ComposeConversation>
   <CreateNewContactDialog ref="createNewContactDialogRef" @create="onCreate" />
   <ContactExportDialog ref="contactExportDialogRef" @export="onExport" />
-  <ContactImportDialog ref="contactImportDialogRef" @import="onImport" />
+  <ContactImportDialog
+    ref="contactImportDialogRef"
+    @import="onImport"
+    @parse-error="onImportParseError"
+  />
   <CreateSegmentDialog ref="createSegmentDialogRef" @create="onCreateSegment" />
   <DeleteSegmentDialog ref="deleteSegmentDialogRef" @delete="onDeleteSegment" />
 </template>

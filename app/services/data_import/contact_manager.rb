@@ -4,6 +4,8 @@ class DataImport::ContactManager
   end
 
   def build_contact(params)
+    return invalid_contact_for_missing_required(params) if required_attributes_missing?(params)
+
     contact = find_or_initialize_contact(params)
     update_contact_attributes(params, contact)
     contact
@@ -58,11 +60,40 @@ class DataImport::ContactManager
 
   private
 
+  def required_attributes_missing?(params)
+    name_present = params[:name].to_s.strip.present?
+    name_present ||= (params[:first_name].to_s.strip.present? || params[:last_name].to_s.strip.present?)
+    phone_present = params[:phone_number].to_s.strip.present?
+    !name_present || !phone_present
+  end
+
+  def invalid_contact_for_missing_required(params)
+    contact = @account.contacts.new
+    contact.errors.add(:base, I18n.t('errors.contacts.import.name_and_phone_required'))
+    contact
+  end
+
+  def sanitize_name_string(str)
+    return '' if str.blank?
+
+    s = str.to_s
+    utf8 = s.force_encoding('UTF-8')
+    return s.strip if utf8.valid_encoding?
+
+    s.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').strip
+  end
+
   def update_contact_attributes(params, contact)
-    contact.name = params[:name] if params[:name].present?
+    name_value = sanitize_name_string(params[:name]).presence
+    name_value ||= [params[:first_name], params[:last_name]].map { |v| sanitize_name_string(v).presence }.compact.join(' ') if params[:first_name].present? || params[:last_name].present?
+    contact.name = name_value if name_value.present?
     contact.additional_attributes ||= {}
-    contact.additional_attributes[:company] = params[:company] if params[:company].present?
-    contact.additional_attributes[:city] = params[:city] if params[:city].present?
-    contact.assign_attributes(custom_attributes: contact.custom_attributes.merge(params.except(:identifier, :email, :name, :phone_number)))
+    contact.additional_attributes[:city] = params[:city].to_s.strip.presence if params[:city].present?
+    contact.additional_attributes[:country] = params[:country].to_s.strip.presence if params[:country].present?
+    company_value = (params[:company_name].presence || params[:company].presence).to_s.strip.presence
+    contact.additional_attributes[:company_name] = company_value if company_value.present?
+    custom_keys = params.keys - %i[identifier email name first_name last_name phone_number city country company_name company tag label]
+    custom_params = params.slice(*custom_keys)
+    contact.assign_attributes(custom_attributes: contact.custom_attributes.merge(custom_params)) if custom_params.present?
   end
 end

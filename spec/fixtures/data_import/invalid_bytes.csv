@@ -1,3 +1,3 @@
-name,email
-Jöhn Döe,john.doe@example.com
-Jane Smith,jane.smith@example.com
+name,email,phone_number
+Jöhn Döe,john.doe@example.com,+1234567890
+Jane Smith,jane.smith@example.com,+1234567891

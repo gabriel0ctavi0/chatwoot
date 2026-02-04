@@ -73,6 +73,8 @@ en:
     contacts:
       import:
         failed: File is blank
+        name_and_phone_required: Name and phone are required
+        no_valid_records: Name and phone are required. No valid records found.
       export:
         success: We will notify you once contacts export file is ready to view.
       email:

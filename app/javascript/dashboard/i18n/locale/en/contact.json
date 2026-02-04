@@ -326,7 +326,12 @@
           "CHANGE": "Change",
           "CANCEL": "Cancel",
           "IMPORT": "Import",
-          "SUCCESS_MESSAGE": "You will be notified via email when the import is complete.",
+          "CONFIRM_IMPORT": "Confirm and import",
+          "CONFIRM_MESSAGE": "You are about to import {count} contact(s).",
+          "CONFIRM_MESSAGE_WITH_SKIP": "You are about to import {count} contact(s). {invalidCount} row(s) will be skipped (missing name or phone).",
+          "NO_VALID_ROWS": "No valid rows found. Name and phone are required for each row.",
+          "SUCCESS_MESSAGE": "Import complete. {count} contact(s) imported.",
+          "SUCCESS_MESSAGE_WITH_FAILED": "Import complete. {count} contact(s) imported. {failedCount} failed.",
           "ERROR_MESSAGE": "There was an error, please try again"
         },
         "EXPORT_CONTACT": {
@@ -441,6 +446,10 @@
           },
           "COMPANY_NAME": {
             "PLACEHOLDER": "Enter the company name"
+          },
+          "LABELS": {
+            "LABEL": "Labels",
+            "PLACEHOLDER": "Select labels"
           }
         },
         "UPDATE_BUTTON": "Update contact",

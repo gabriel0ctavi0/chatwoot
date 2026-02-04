@@ -34,12 +34,24 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   def import
     render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity and return if params[:import_file].blank?
 
+    import = nil
     ActiveRecord::Base.transaction do
       import = Current.account.data_imports.create!(data_type: 'contacts')
       import.import_file.attach(params[:import_file])
     end
 
-    head :ok
+    DataImportJob.perform_now(import)
+    import.reload
+    if import.failed?
+      render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity
+      return
+    end
+    render json: {
+      processed_records: import.processed_records.to_i,
+      failed_count: (import.total_records.to_i - import.processed_records.to_i)
+    }
+  rescue DataImport::AllRowsInvalidError => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def export
@@ -84,8 +96,9 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def create
     ActiveRecord::Base.transaction do
-      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url))
+      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url, :label_list))
       @contact.save!
+      @contact.update_labels(permitted_params[:label_list]) if permitted_params[:label_list].present?
       @contact_inbox = build_contact_inbox
       process_avatar_from_url
     end
@@ -171,7 +184,8 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def permitted_params
-    params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url, additional_attributes: {}, custom_attributes: {})
+    params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url,
+                  additional_attributes: {}, custom_attributes: {}, label_list: [])
   end
 
   def contact_custom_attributes
