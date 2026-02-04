@@ -81,9 +81,7 @@ class ContactAPI extends ApiClient {
   importContacts(file) {
     const formData = new FormData();
     formData.append('import_file', file);
-    return axios.post(`${this.url}/import`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return axios.post(`${this.url}/import`, formData);
   }
 
   destroyCustomAttributes(contactId, customAttributes) {
