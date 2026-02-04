@@ -28,7 +28,26 @@ defineOptions({
 });
 
 const timeStampURL = computed(() => {
-  return timeStampAppendedURL(attachment.dataUrl);
+  try {
+    const u = attachment?.dataUrl ?? attachment?.data_url;
+    return u ? timeStampAppendedURL(u) : '';
+  } catch (e) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'Audio.vue:timeStampURL-catch',
+        message: 'timeStampAppendedURL threw',
+        data: { error: String(e?.message || e) },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        hypothesisId: 'H2',
+      }),
+    }).catch(() => {});
+    // #endregion
+    return attachment?.dataUrl ?? attachment?.data_url ?? '';
+  }
 });
 
 const audioPlayer = useTemplateRef('audioPlayer');
@@ -42,7 +61,22 @@ const playbackSpeed = ref(1);
 const { uid } = getCurrentInstance();
 
 const onLoadedMetadata = () => {
-  duration.value = audioPlayer.value?.duration;
+  const d = audioPlayer.value?.duration;
+  duration.value = d;
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'Audio.vue:onLoadedMetadata',
+      message: 'loadedmetadata fired',
+      data: { rawDuration: d, isNaN: Number.isNaN(d), durationSet: d },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'H3-H4-H5',
+    }),
+  }).catch(() => {});
+  // #endregion
 };
 
 const playbackSpeedLabel = computed(() => {
@@ -53,8 +87,32 @@ const playbackSpeedLabel = computed(() => {
 // When the onLoadMetadata is called, so we need to set the duration
 // value when the component is mounted
 onMounted(() => {
-  duration.value = audioPlayer.value?.duration;
-  audioPlayer.value.playbackRate = playbackSpeed.value;
+  const d = audioPlayer.value?.duration;
+  duration.value = d;
+  if (audioPlayer.value) audioPlayer.value.playbackRate = playbackSpeed.value;
+  // #region agent log
+  const u = attachment?.dataUrl ?? attachment?.data_url;
+  fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'Audio.vue:onMounted',
+      message: 'audio mounted',
+      data: {
+        rawDuration: d,
+        isNaN: Number.isNaN(d),
+        hasRef: !!audioPlayer.value,
+        hasDataUrl: !!attachment?.dataUrl,
+        hasData_url: !!attachment?.data_url,
+        urlStart: u ? String(u).slice(0, 80) : null,
+        timeStampURL: timeStampURL.value?.slice(0, 80) ?? null,
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'H1-H2-H5',
+    }),
+  }).catch(() => {});
+  // #endregion
 });
 
 // Listen for global audio play events and pause if it's not this audio
@@ -122,6 +180,29 @@ const downloadAudio = async () => {
   const { fileType, dataUrl, extension } = attachment;
   downloadFile({ url: dataUrl, type: fileType, extension });
 };
+
+const onAudioError = e => {
+  // #region agent log
+  const el = e?.target;
+  fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'Audio.vue:onAudioError',
+      message: 'audio load error',
+      data: {
+        code: el?.error?.code,
+        message: el?.error?.message,
+        networkState: el?.networkState,
+        readyState: el?.readyState,
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'H3',
+    }),
+  }).catch(() => {});
+  // #endregion
+};
 </script>
 
 <template>
@@ -133,6 +214,7 @@ const downloadAudio = async () => {
     @loadedmetadata="onLoadedMetadata"
     @timeupdate="onTimeUpdate"
     @ended="onEnd"
+    @error="onAudioError"
   >
     <source :src="timeStampURL" />
   </audio>
