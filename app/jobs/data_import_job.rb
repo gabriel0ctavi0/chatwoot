@@ -160,7 +160,14 @@ class DataImportJob < ApplicationJob
     utf8_data = raw_data.force_encoding('UTF-8')
     clean_data = utf8_data.valid_encoding? ? utf8_data : utf8_data.encode('UTF-16le', invalid: :replace, replace: '').encode('UTF-8')
 
-    CSV.new(StringIO.new(clean_data), headers: true)
+    col_sep = csv_delimiter(clean_data)
+    CSV.new(StringIO.new(clean_data), headers: true, col_sep: col_sep)
+  end
+
+  def csv_delimiter(content)
+    first_line = content.lines.first.to_s.strip
+    return ';' if first_line.include?(';')
+    ','
   end
 
   def with_import_file
