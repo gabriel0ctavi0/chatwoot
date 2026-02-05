@@ -83,6 +83,12 @@ onMounted(() => {
     if (headerComponent) {
       headerType.value = headerComponent.format || 'TEXT';
       headerText.value = headerComponent.text || '';
+      if (headerComponent.example?.header_url?.[0]) {
+        headerImageUrl.value = headerComponent.example.header_url[0];
+      } else if (headerComponent.example?.header_handle?.[0]) {
+        // Fallback or placeholder if only handle is available
+        headerImageUrl.value = '';
+      }
     }
 
     const bodyComponent = props.template.components?.find(
@@ -120,7 +126,7 @@ const handleSubmit = async () => {
       header: headerType.value !== 'NONE' ? {
         type: headerType.value,
         text: headerType.value === 'TEXT' ? headerText.value : undefined
-      } : null,
+      } : undefined,
       buttons: buttons.value.filter(btn => btn.text),
     };
 

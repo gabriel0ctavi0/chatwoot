@@ -97,7 +97,9 @@ class Whatsapp::TemplateManagementService
   end
 
   def build_header_component(header)
-    case header[:type]&.upcase
+    return nil if header[:type].blank? || header[:type].upcase == 'NONE'
+
+    case header[:type].upcase
     when 'TEXT'
       { type: 'HEADER', format: 'TEXT', text: header[:text] }
     when 'IMAGE', 'VIDEO', 'DOCUMENT'

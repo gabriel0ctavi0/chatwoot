@@ -114,7 +114,7 @@ const handleSubmit = async () => {
       header: headerType.value !== 'NONE' ? {
         type: headerType.value,
         text: headerType.value === 'TEXT' ? headerText.value : undefined
-      } : null,
+      } : undefined,
       buttons: buttons.value.filter(btn => btn.text),
     };
 
