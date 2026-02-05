@@ -195,6 +195,17 @@ class Contact < ApplicationRecord
     find_by(email: email&.downcase)
   end
 
+  def update_contact_tags(tags = nil)
+    update!(contact_tag_list: tags)
+  end
+
+  def add_contact_tags(new_tags = nil)
+    return if new_tags.blank?
+
+    combined = contact_tag_list + Array(new_tags)
+    update!(contact_tag_list: combined)
+  end
+
   private
 
   def ip_lookup
@@ -250,17 +261,6 @@ class Contact < ApplicationRecord
       Time.zone.now,
       contact_data: push_event_data.merge(account_id: account_id)
     )
-  end
-
-  def update_contact_tags(tags = nil)
-    update!(contact_tag_list: tags)
-  end
-
-  def add_contact_tags(new_tags = nil)
-    return if new_tags.blank?
-
-    combined = contact_tag_list + Array(new_tags)
-    update!(contact_tag_list: combined)
   end
 end
 Contact.include_mod_with('Concerns::Contact')
