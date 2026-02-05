@@ -520,6 +520,13 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Templates',
+      label: t('SIDEBAR.TEMPLATES'),
+      icon: 'i-lucide-file-text',
+      to: accountScopedRoute('whatsapp_templates_index'),
+      activeOn: ['whatsapp_templates_index'],
+    },
+    {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
       icon: 'i-lucide-library-big',

@@ -37,6 +37,7 @@ import signup from './signup.json';
 import sla from './sla.json';
 import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
+import whatsappTemplatesMgmt from './whatsappTemplatesMgmt.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import yearInReview from './yearInReview.json';
@@ -81,6 +82,7 @@ export default {
   ...sla,
   ...teamsSettings,
   ...whatsappTemplates,
+  ...whatsappTemplatesMgmt,
   ...contentTemplates,
   ...mfa,
   ...yearInReview,
