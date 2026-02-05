@@ -58,8 +58,8 @@
         },
         "BODY": {
           "LABEL": "Message Body",
-          "PLACEHOLDER": "Type your message here. Use double curly braces for variables, e.g. {'{{'}variable_name{'}}'}",
-          "HELP": "Use {'{{'}variable_name{'}}'}  for named params or {'{{'}1{'}}'}  for positional params"
+          "PLACEHOLDER": "Type your message here. Add variables with double curly braces.",
+          "HELP": "Wrap variable names in double curly braces, e.g. first_name or 1"
         },
         "BUTTONS": {
           "LABEL": "Buttons",
