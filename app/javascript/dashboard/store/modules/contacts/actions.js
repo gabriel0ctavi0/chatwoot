@@ -37,11 +37,15 @@ const buildContactFormData = contactParams => {
 export const handleContactOperationErrors = error => {
   if (error.response?.status === 422) {
     throw new DuplicateContactException(error.response.data.attributes);
-  } else if (error.response?.data?.message) {
-    throw new ExceptionWithMessage(error.response.data.message);
-  } else {
-    throw new Error(error);
   }
+  const serverMessage =
+    error.response?.data?.message ??
+    error.response?.data?.error ??
+    error?.message;
+  if (serverMessage) {
+    throw new ExceptionWithMessage(serverMessage);
+  }
+  throw new Error(error);
 };
 
 export const actions = {
@@ -132,6 +136,11 @@ export const actions = {
       commit(types.SET_CONTACT_UI_FLAG, { isUpdating: false });
     } catch (error) {
       commit(types.SET_CONTACT_UI_FLAG, { isUpdating: false });
+      console.error('[Contacts UPDATE]', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+      });
       handleContactOperationErrors(error);
     }
   },

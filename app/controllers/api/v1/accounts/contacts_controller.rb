@@ -15,6 +15,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   before_action :set_current_page, only: [:index, :active, :search, :filter]
   before_action :fetch_contact, only: [:show, :update, :destroy, :avatar, :contactable_inboxes, :destroy_custom_attributes]
   before_action :set_include_contact_inboxes, only: [:index, :active, :search, :filter, :show, :update]
+  around_action :log_contact_update_errors, only: [:update]
 
   def index
     @contacts = fetch_contacts(resolved_contacts)
@@ -110,7 +111,9 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     contact_tag_list = permitted_params[:contact_tag_list]
     @contact.assign_attributes(contact_update_params.except(:contact_tag_list))
     @contact.save!
-    @contact.update_contact_tags(contact_tag_list) if permitted_params.key?(:contact_tag_list)
+    if permitted_params.key?(:contact_tag_list)
+      @contact.update_contact_tags(contact_tag_list)
+    end
     process_avatar_from_url
   end
 
@@ -236,5 +239,15 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def render_error(error, error_status)
     render json: error, status: error_status
+  end
+
+  def log_contact_update_errors
+    yield
+  rescue StandardError => e
+    Rails.logger.error("[Contacts#update] #{e.class}: #{e.message}")
+    Rails.logger.error(e.backtrace&.first(15)&.join("\n"))
+    payload = { error: e.class.name, message: e.message }
+    payload[:backtrace] = e.backtrace&.first(15) if Rails.env.development? || params[:debug]
+    render json: payload, status: :internal_server_error and return
   end
 end
