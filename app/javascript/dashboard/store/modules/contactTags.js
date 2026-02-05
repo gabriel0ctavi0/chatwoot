@@ -40,7 +40,11 @@ export const actions = {
       const sorted = payload.sort((a, b) => a.title.localeCompare(b.title));
       commit(types.SET_CONTACT_TAGS, sorted);
     } catch (error) {
-      // Ignore error
+      console.error('[ContactTags GET]', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+      });
     } finally {
       commit(types.SET_CONTACT_TAG_UI_FLAG, { isFetching: false });
     }
@@ -53,7 +57,12 @@ export const actions = {
       commit(types.ADD_CONTACT_TAG, response.data);
       return response.data;
     } catch (error) {
-      const errorMessage = error?.response?.data?.message;
+      console.error('[ContactTags CREATE]', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+      });
+      const errorMessage = error?.response?.data?.message ?? error?.response?.data?.error ?? error?.message;
       throw new Error(errorMessage);
     } finally {
       commit(types.SET_CONTACT_TAG_UI_FLAG, { isCreating: false });

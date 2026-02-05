@@ -48,21 +48,11 @@ class Api::V1::Accounts::ContactTagsController < Api::V1::Accounts::BaseControll
   def log_contact_tags_errors
     yield
   rescue StandardError => e
-    File.open(DEBUG_LOG_PATH, 'a') do |f|
-      f.puts({
-        timestamp: Time.now.to_i,
-        location: 'contact_tags_controller',
-        message: 'contact_tags_error',
-        hypothesisId: 'H_error',
-        data: {
-          error_class: e.class.name,
-          error_message: e.message,
-          backtrace: e.backtrace&.first(10)
-        },
-        sessionId: 'debug-session'
-      }.to_json)
-    end
-    raise
+    Rails.logger.error("[ContactTags] #{e.class}: #{e.message}")
+    Rails.logger.error(e.backtrace&.first(15)&.join("\n"))
+    payload = { error: e.class.name, message: e.message }
+    payload[:backtrace] = e.backtrace&.first(15) if Rails.env.development? || params[:debug]
+    render json: payload, status: :internal_server_error and return
   end
 
   def debug_log_contact_tags(msg, data = {})
