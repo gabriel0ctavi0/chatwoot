@@ -143,7 +143,47 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
 
     label_values = Array(params[:labels]).map { |l| l.to_s.strip.downcase.presence }.compact.uniq
+    # #region agent log
+    if label_values.present?
+      count_before = @resolved_contacts.count
+      debug_payload = {
+        timestamp: Time.now.to_i,
+        location: 'contacts_controller#resolved_contacts',
+        message: 'label_filter_backend',
+        hypothesisId: 'H1_H2_H3_backend',
+        data: {
+          params_labels_raw: params[:labels].inspect,
+          label_values: label_values.inspect,
+          label_values_bytes: label_values.map { |v| v.bytes },
+          count_before: count_before,
+        },
+        sessionId: 'debug-session',
+      }
+      begin
+        File.open(Rails.root.join('.cursor/debug.log').to_s, 'a') { |f| f.puts(debug_payload.to_json) }
+      rescue Errno::ENOENT, Errno::ENOTDIR
+        Rails.logger.info("[Contacts label_filter_backend] #{debug_payload.to_json}")
+      end
+    end
+    # #endregion
     @resolved_contacts = @resolved_contacts.tagged_with(label_values, any: true) if label_values.present?
+    # #region agent log
+    if label_values.present?
+      debug_after = {
+        timestamp: Time.now.to_i,
+        location: 'contacts_controller#resolved_contacts_after',
+        message: 'label_filter_after',
+        hypothesisId: 'H5_after',
+        data: { count_after: @resolved_contacts.count },
+        sessionId: 'debug-session',
+      }
+      begin
+        File.open(Rails.root.join('.cursor/debug.log').to_s, 'a') { |f| f.puts(debug_after.to_json) }
+      rescue Errno::ENOENT, Errno::ENOTDIR
+        Rails.logger.info("[Contacts label_filter_after] #{debug_after.to_json}")
+      end
+    end
+    # #endregion
 
     contact_tag_values = Array(params[:contact_tags]).map { |t| t.to_s.strip.downcase.presence }.compact.uniq
     if contact_tag_values.present?

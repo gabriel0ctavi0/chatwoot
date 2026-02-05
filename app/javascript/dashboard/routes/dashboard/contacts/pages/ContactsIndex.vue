@@ -186,12 +186,37 @@ const updatePageParam = (page, search = '') => {
 const buildSortAttr = () =>
   `${sortState.activeOrdering}${sortState.activeSort}`;
 
-const getCommonFetchParams = (page = 1) => ({
-  page,
-  sortAttr: buildSortAttr(),
-  label: activeLabel.value,
-  contactTag: activeTag.value,
-});
+const getCommonFetchParams = (page = 1) => {
+  const params = {
+    page,
+    sortAttr: buildSortAttr(),
+    label: activeLabel.value,
+    contactTag: activeTag.value,
+  };
+  // #region agent log
+  if (activeLabel.value) {
+    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'ContactsIndex.vue',
+        message: 'label_filter_params',
+        hypothesisId: 'H4_frontend_label',
+        data: {
+          routeName: route.name,
+          routeParamLabel: route.params.label,
+          activeLabelValue: activeLabel.value,
+          labelLength: activeLabel.value?.length,
+          labelCharCodes: activeLabel.value?.split('').map(c => c.codePointAt(0)),
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
+  return params;
+};
 
 const fetchContacts = async (page = 1) => {
   clearSelection();
