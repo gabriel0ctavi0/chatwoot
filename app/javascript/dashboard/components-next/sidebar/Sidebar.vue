@@ -285,44 +285,6 @@ const menuItems = computed(() => {
               }),
           })),
         },
-        {
-          name: 'Labels',
-          label: t('SIDEBAR.LABELS'),
-          icon: 'i-lucide-tag',
-          activeOn: ['conversations_through_label'],
-          children: labels.value.map(label => ({
-            name: `${label.title}-${label.id}`,
-            label: label.title,
-            icon: h('span', {
-              class: `size-[8px] rounded-sm`,
-              style: { backgroundColor: label.color },
-            }),
-            to: accountScopedRoute('label_conversations', {
-              label: label.title,
-            }),
-          })),
-        },
-        ...(contactTags.value?.length > 0
-          ? [
-              {
-                name: 'Tagged With',
-                icon: 'i-lucide-tag',
-                label: t('SIDEBAR.TAGGED_WITH'),
-                activeOn: ['conversations_through_contact_tag'],
-                children: contactTags.value.map(tag => ({
-                  name: `tag-${tag.title}-${tag.id}`,
-                  label: tag.title,
-                  icon: h('span', {
-                    class: `size-[8px] rounded-sm`,
-                    style: { backgroundColor: tag.color },
-                  }),
-                  to: accountScopedRoute('contact_tag_conversations', {
-                    contactTag: tag.title,
-                  }),
-                })),
-              },
-            ]
-          : []),
       ],
     },
     {
