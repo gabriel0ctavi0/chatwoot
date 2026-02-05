@@ -25,6 +25,8 @@ const headerType = ref('NONE');
 const headerText = ref('');
 const headerFile = ref(null);
 const headerImageUrl = ref('');
+const headerVideoUrl = ref('');
+const headerDocumentName = ref('');
 const footerText = ref('');
 const buttons = ref([]);
 
@@ -38,7 +40,13 @@ const handleHeaderFileChange = event => {
     headerFile.value = file;
     const reader = new FileReader();
     reader.onload = e => {
-      headerImageUrl.value = e.target.result;
+      if (headerType.value === 'IMAGE') {
+        headerImageUrl.value = e.target.result;
+      } else if (headerType.value === 'VIDEO') {
+        headerVideoUrl.value = e.target.result;
+      } else if (headerType.value === 'DOCUMENT') {
+        headerDocumentName.value = file.name;
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -229,26 +237,23 @@ const handleSubmit = async () => {
                 class="w-full"
                 :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.PLACEHOLDER')"
               />
-              <div v-else-if="headerType === 'IMAGE'" class="flex flex-col gap-2">
+              <div v-else-if="headerType === 'IMAGE' || headerType === 'VIDEO' || headerType === 'DOCUMENT'" class="flex flex-col gap-2">
                 <input
                   type="file"
-                  accept="image/*"
+                  :accept="headerType === 'IMAGE' ? 'image/*' : headerType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.txt'"
                   class="hidden"
-                  ref="imageInput"
+                  ref="headerFileInput"
                   @change="handleHeaderFileChange"
                 />
                 <Button
-                  :label="headerFile ? headerFile.name : 'Choose Image'"
-                  icon="i-lucide-image"
+                  :label="headerFile ? headerFile.name : t(`WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.CHOOSE_${headerType}`)"
+                  :icon="headerType === 'IMAGE' ? 'i-lucide-image' : headerType === 'VIDEO' ? 'i-lucide-play-circle' : 'i-lucide-file-text'"
                   variant="faded"
                   color="slate"
                   size="sm"
                   class="w-full"
-                  @click="$refs.imageInput.click()"
+                  @click="$refs.headerFileInput.click()"
                 />
-              </div>
-              <div v-else-if="headerType !== 'NONE'" class="w-full flex items-center px-3 py-2 rounded-lg bg-n-alpha-1 border border-dashed border-n-weak text-xs text-n-slate-10">
-                Media handle will be required when sending
               </div>
             </div>
           </div>
@@ -258,12 +263,13 @@ const handleSubmit = async () => {
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.LABEL') }}
             </label>
             <textarea
-              v-model="body"
+              :value="body"
               :placeholder="
                 t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER')
               "
               rows="10"
               class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand resize-none"
+              @input="body = $event.target.value"
             />
             <span class="text-xs text-n-slate-10">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.HELP') }}
@@ -288,7 +294,13 @@ const handleSubmit = async () => {
           class="flex flex-col flex-1 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
         >
           <TemplatePreview
-            :header="headerType !== 'NONE' ? { type: headerType, text: headerText, imageUrl: headerImageUrl } : null"
+            :header="headerType !== 'NONE' ? { 
+              type: headerType, 
+              text: headerText, 
+              imageUrl: headerImageUrl,
+              videoUrl: headerVideoUrl,
+              documentName: headerDocumentName
+            } : null"
             :body="body"
             :footer="footerText"
             :buttons="buttons"

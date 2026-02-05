@@ -91,7 +91,10 @@
           "TEXT": "Text",
           "IMAGE": "Image",
           "VIDEO": "Video",
-          "DOCUMENT": "Document"
+          "DOCUMENT": "Document",
+          "CHOOSE_IMAGE": "Choose Image",
+          "CHOOSE_VIDEO": "Choose Video",
+          "CHOOSE_DOCUMENT": "Choose Document"
         },
         "BODY": {
           "LABEL": "Message Body",

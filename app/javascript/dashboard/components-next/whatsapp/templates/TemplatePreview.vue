@@ -67,6 +67,21 @@ const buttonIcon = type => {
               :src="header.imageUrl"
               class="w-full h-full object-cover"
             />
+            <video
+              v-else-if="header.type === 'VIDEO' && header.videoUrl"
+              :src="header.videoUrl"
+              class="w-full h-full object-cover"
+              controls
+            />
+            <div
+              v-else-if="header.type === 'DOCUMENT' && header.documentName"
+              class="flex flex-col items-center gap-2 p-4 text-center"
+            >
+              <Icon icon="i-lucide-file-text" class="size-8 text-n-slate-9" />
+              <span class="text-xs font-medium text-n-slate-11 break-all">
+                {{ header.documentName }}
+              </span>
+            </div>
             <Icon
               v-else
               :icon="header.type === 'IMAGE' ? 'i-lucide-image' : header.type === 'VIDEO' ? 'i-lucide-play-circle' : 'i-lucide-file-text'"
