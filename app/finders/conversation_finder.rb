@@ -66,6 +66,7 @@ class ConversationFinder
     filter_by_status unless params[:q]
     filter_by_team
     filter_by_labels
+    filter_by_contact_tags
     filter_by_query
     filter_by_source_id
   end
@@ -157,6 +158,17 @@ class ConversationFinder
     return unless params[:labels]
 
     @conversations = @conversations.tagged_with(params[:labels], any: true)
+  end
+
+  def filter_by_contact_tags
+    return unless params[:contact_tags].present?
+
+    contact_ids = current_account.contacts.tagged_with(
+      params[:contact_tags],
+      on: :contact_tags,
+      any: true
+    ).select(:id)
+    @conversations = @conversations.where(contact_id: contact_ids)
   end
 
   def filter_by_source_id

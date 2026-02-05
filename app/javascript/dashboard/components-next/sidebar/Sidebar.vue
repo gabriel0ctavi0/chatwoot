@@ -302,6 +302,27 @@ const menuItems = computed(() => {
             }),
           })),
         },
+        ...(contactTags.value?.length > 0
+          ? [
+              {
+                name: 'Tagged With',
+                icon: 'i-lucide-tag',
+                label: t('SIDEBAR.TAGGED_WITH'),
+                activeOn: ['conversations_through_contact_tag'],
+                children: contactTags.value.map(tag => ({
+                  name: `tag-${tag.title}-${tag.id}`,
+                  label: tag.title,
+                  icon: h('span', {
+                    class: `size-[8px] rounded-sm`,
+                    style: { backgroundColor: tag.color },
+                  }),
+                  to: accountScopedRoute('contact_tag_conversations', {
+                    contactTag: tag.title,
+                  }),
+                })),
+              },
+            ]
+          : []),
       ],
     },
     {

@@ -76,6 +76,7 @@ const props = defineProps({
   conversationInbox: { type: [String, Number], default: 0 },
   teamId: { type: [String, Number], default: 0 },
   label: { type: String, default: '' },
+  contactTag: { type: String, default: '' },
   conversationType: { type: String, default: '' },
   foldersId: { type: [String, Number], default: 0 },
   showConversationList: { default: true, type: Boolean },
@@ -282,6 +283,7 @@ const conversationFilters = computed(() => {
     sortBy: activeSortBy.value,
     page: conversationListPagination.value,
     labels: props.label ? [props.label] : undefined,
+    contactTags: props.contactTag ? [props.contactTag] : undefined,
     teamId: props.teamId || undefined,
     conversationType: props.conversationType || undefined,
   };
@@ -306,6 +308,9 @@ const pageTitle = computed(() => {
   }
   if (props.label) {
     return `#${props.label}`;
+  }
+  if (props.contactTag) {
+    return `#${props.contactTag}`;
   }
   if (props.conversationType === 'mention') {
     return t('CHAT_LIST.MENTION_HEADING');
@@ -657,7 +662,7 @@ function openLastItemAfterDeleteInFolder() {
 
 function redirectToConversationList() {
   const {
-    params: { accountId, inbox_id: inboxId, label, teamId },
+    params: { accountId, inbox_id: inboxId, label, contactTag, teamId },
     name,
   } = route;
 
@@ -674,6 +679,7 @@ function redirectToConversationList() {
       customViewId: props.foldersId,
       inboxId,
       label,
+      contactTag,
       teamId,
     })
   );
@@ -878,6 +884,10 @@ watch(
   () => resetAndFetchData()
 );
 watch(
+  computed(() => props.contactTag),
+  () => resetAndFetchData()
+);
+watch(
   computed(() => props.conversationType),
   () => resetAndFetchData()
 );
@@ -1004,6 +1014,7 @@ watch(conversationFilters, (newVal, oldVal) => {
             <ConversationItem
               :source="item"
               :label="label"
+              :contact-tag="contactTag"
               :team-id="teamId"
               :folders-id="foldersId"
               :conversation-type="conversationType"

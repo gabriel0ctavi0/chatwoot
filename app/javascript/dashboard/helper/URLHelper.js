@@ -8,6 +8,7 @@ export const conversationUrl = ({
   activeInbox,
   id,
   label,
+  contactTag,
   teamId,
   conversationType = '',
   foldersId,
@@ -17,6 +18,8 @@ export const conversationUrl = ({
     url = `accounts/${accountId}/inbox/${activeInbox}/conversations/${id}`;
   } else if (label) {
     url = `accounts/${accountId}/label/${label}/conversations/${id}`;
+  } else if (contactTag) {
+    url = `accounts/${accountId}/contact_tag/${contactTag}/conversations/${id}`;
   } else if (teamId) {
     url = `accounts/${accountId}/team/${teamId}/conversations/${id}`;
   } else if (foldersId && foldersId !== 0) {
@@ -36,12 +39,15 @@ export const conversationListPageURL = ({
   conversationType = '',
   inboxId,
   label,
+  contactTag,
   teamId,
   customViewId,
 }) => {
   let url = `accounts/${accountId}/dashboard`;
   if (label) {
     url = `accounts/${accountId}/label/${label}`;
+  } else if (contactTag) {
+    url = `accounts/${accountId}/contact_tag/${contactTag}`;
   } else if (teamId) {
     url = `accounts/${accountId}/team/${teamId}`;
   } else if (inboxId) {

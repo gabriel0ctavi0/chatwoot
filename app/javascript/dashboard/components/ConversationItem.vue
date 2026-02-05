@@ -31,6 +31,10 @@ export default {
       type: String,
       default: '',
     },
+    contactTag: {
+      type: String,
+      default: '',
+    },
     conversationType: {
       type: String,
       default: '',
@@ -51,6 +55,7 @@ export default {
   <ConversationCard
     :key="source.id"
     :active-label="label"
+    :active-contact-tag="contactTag"
     :team-id="teamId"
     :folders-id="foldersId"
     :chat="source"

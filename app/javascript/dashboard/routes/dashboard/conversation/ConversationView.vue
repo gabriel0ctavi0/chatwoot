@@ -40,6 +40,10 @@ export default {
       type: String,
       default: '',
     },
+    contactTag: {
+      type: String,
+      default: '',
+    },
     teamId: {
       type: String,
       default: '',
@@ -200,6 +204,7 @@ export default {
       :show-conversation-list="showConversationList"
       :conversation-inbox="inboxId"
       :label="label"
+      :contact-tag="contactTag"
       :team-id="teamId"
       :conversation-type="conversationType"
       :folders-id="foldersId"

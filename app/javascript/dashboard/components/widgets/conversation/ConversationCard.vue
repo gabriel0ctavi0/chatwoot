@@ -17,6 +17,7 @@ import VoiceCallStatus from './VoiceCallStatus.vue';
 
 const props = defineProps({
   activeLabel: { type: String, default: '' },
+  activeContactTag: { type: String, default: '' },
   chat: { type: Object, default: () => ({}) },
   hideInboxName: { type: Boolean, default: false },
   hideThumbnail: { type: Boolean, default: false },
@@ -131,6 +132,7 @@ const conversationPath = computed(() => {
       activeInbox: activeInbox.value,
       id: props.chat.id,
       label: props.activeLabel,
+      contactTag: props.activeContactTag,
       teamId: props.teamId,
       conversationType: props.conversationType,
       foldersId: props.foldersId,

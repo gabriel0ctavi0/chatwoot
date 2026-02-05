@@ -71,6 +71,29 @@ export default {
       props: route => ({ label: route.params.label }),
     },
     {
+      path: frontendURL('accounts/:accountId/contact_tag/:contactTag'),
+      name: 'contact_tag_conversations',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: route => ({ contactTag: route.params.contactTag }),
+    },
+    {
+      path: frontendURL(
+        'accounts/:accountId/contact_tag/:contactTag/conversations/:conversation_id'
+      ),
+      name: 'conversations_through_contact_tag',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: route => ({
+        conversationId: route.params.conversation_id,
+        contactTag: route.params.contactTag,
+      }),
+    },
+    {
       path: frontendURL(
         'accounts/:accountId/label/:label/conversations/:conversation_id'
       ),
