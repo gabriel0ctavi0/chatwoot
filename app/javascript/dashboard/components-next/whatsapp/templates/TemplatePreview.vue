@@ -64,11 +64,11 @@ const buttonIcon = type => {
               v-else
               class="flex items-center justify-center aspect-video rounded-lg bg-n-alpha-1 border border-n-weak text-n-slate-9 overflow-hidden"
             >
-              <img
-                v-if="header.type === 'IMAGE' && header.imageUrl"
-                :src="header.imageUrl"
-                class="w-full h-full object-cover"
-              />
+            <img
+              v-if="header.type === 'IMAGE' && header.imageUrl"
+              :src="header.imageUrl"
+              class="w-full h-full object-contain bg-n-alpha-2"
+            />
               <video
                 v-else-if="header.type === 'VIDEO' && header.videoUrl"
                 :src="header.videoUrl"
