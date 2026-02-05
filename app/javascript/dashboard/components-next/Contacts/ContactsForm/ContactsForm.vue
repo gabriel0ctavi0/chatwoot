@@ -135,7 +135,9 @@ const prepareStateBasedOnProps = () => {
   );
   const rawTagList = Array.isArray(props.contactData?.contact_tag_list)
     ? props.contactData.contact_tag_list
-    : [];
+    : Array.isArray(props.contactData?.contactTagList)
+      ? props.contactData.contactTagList
+      : [];
   const contactTagList = rawTagList.filter(
     t => !labelTitles.has(String(t).toLowerCase())
   );
