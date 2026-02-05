@@ -89,9 +89,20 @@ class Whatsapp::TemplateManagementService
 
   def build_components(params)
     components = []
+    components << build_header_component(params[:header]) if params[:header].present?
     components << { type: 'BODY', text: params[:body] } if params[:body].present?
+    components << { type: 'FOOTER', text: params[:footer] } if params[:footer].present?
     components << build_buttons_component(params[:buttons]) if params[:buttons].present?
     components
+  end
+
+  def build_header_component(header)
+    case header[:type]&.upcase
+    when 'TEXT'
+      { type: 'HEADER', format: 'TEXT', text: header[:text] }
+    when 'IMAGE', 'VIDEO', 'DOCUMENT'
+      { type: 'HEADER', format: header[:type].upcase, example: { header_handle: ['WILL_BE_PROVIDED_ON_SEND'] } }
+    end
   end
 
   def build_buttons_component(buttons)

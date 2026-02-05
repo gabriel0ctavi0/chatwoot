@@ -60,7 +60,8 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
   end
 
   def template_params
-    params.require(:template).permit(:name, :category, :language, :body, :parameter_format,
+    params.require(:template).permit(:name, :category, :language, :body, :footer, :parameter_format,
+                                     header: [:type, :text],
                                      buttons: [:type, :text, :url, :phone_number])
   end
 

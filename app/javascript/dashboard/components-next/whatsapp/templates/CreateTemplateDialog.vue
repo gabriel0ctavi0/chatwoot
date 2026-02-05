@@ -10,23 +10,7 @@ import TemplatePreview from './TemplatePreview.vue';
 import TemplateButtonsEditor from './TemplateButtonsEditor.vue';
 
 // #region agent log
-onMounted(() => {
-  try {
-    const testKeys = [
-      'WHATSAPP_TEMPLATES_MGMT.CREATE.TITLE',
-      'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER',
-      'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.HELP',
-    ];
-    const results = {};
-    const { t: tFn } = useI18n();
-    testKeys.forEach(k => {
-      try { results[k] = tFn(k); } catch (e) { results[k] = `ERROR: ${e.message}`; }
-    });
-    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateTemplateDialog.vue:onMounted',message:'i18n key test',data:results,timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-  } catch (e) {
-    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateTemplateDialog.vue:onMounted',message:'i18n test FAILED',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-  }
-});
+// Removed instrumentation
 // #endregion
 
 const props = defineProps({
@@ -40,13 +24,23 @@ const store = useStore();
 
 const name = ref('');
 const category = ref('MARKETING');
-const language = ref('en');
-const body = ref('');
+const language = ref('pt_BR');
+const headerType = ref('NONE');
+const headerText = ref('');
+const footerText = ref('');
 const buttons = ref([]);
 
 const isCreating = computed(
   () => store.getters['whatsappTemplates/getUIFlags'].isCreating
 );
+
+const HEADER_TYPE_OPTIONS = [
+  { value: 'NONE', label: 'None' },
+  { value: 'TEXT', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.TEXT' },
+  { value: 'IMAGE', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.IMAGE' },
+  { value: 'VIDEO', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.VIDEO' },
+  { value: 'DOCUMENT', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.DOCUMENT' },
+];
 
 const CATEGORY_OPTIONS = [
   { value: 'MARKETING', label: 'WHATSAPP_TEMPLATES_MGMT.CATEGORIES.MARKETING' },
@@ -93,6 +87,11 @@ const handleSubmit = async () => {
       category: category.value,
       language: language.value,
       body: body.value,
+      footer: footerText.value,
+      header: headerType.value !== 'NONE' ? {
+        type: headerType.value,
+        text: headerType.value === 'TEXT' ? headerText.value : undefined
+      } : null,
       buttons: buttons.value.filter(btn => btn.text),
     };
 
@@ -188,6 +187,35 @@ const handleSubmit = async () => {
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.LABEL') }}
+            </label>
+            <div class="flex gap-2">
+              <select
+                v-model="headerType"
+                class="rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak focus:outline-n-brand"
+              >
+                <option
+                  v-for="opt in HEADER_TYPE_OPTIONS"
+                  :key="opt.value"
+                  :value="opt.value"
+                >
+                  {{ t(opt.label) || opt.label }}
+                </option>
+              </select>
+              <Input
+                v-if="headerType === 'TEXT'"
+                v-model="headerText"
+                class="flex-1"
+                :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.PLACEHOLDER')"
+              />
+              <div v-else-if="headerType !== 'NONE'" class="flex-1 flex items-center px-3 rounded-lg bg-n-alpha-1 border border-dashed border-n-weak text-xs text-n-slate-10">
+                Media handle will be required when sending
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-n-slate-12">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.LABEL') }}
             </label>
             <textarea
@@ -195,12 +223,22 @@ const handleSubmit = async () => {
               :placeholder="
                 t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER')
               "
-              rows="6"
+              rows="10"
               class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand resize-none"
             />
             <span class="text-xs text-n-slate-10">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.HELP') }}
             </span>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.FOOTER.LABEL') }}
+            </label>
+            <Input
+              v-model="footerText"
+              :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.FOOTER.PLACEHOLDER')"
+            />
           </div>
 
           <TemplateButtonsEditor v-model="buttons" />
@@ -210,7 +248,12 @@ const handleSubmit = async () => {
         <div
           class="flex flex-col flex-1 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
         >
-          <TemplatePreview :body="body" :buttons="buttons" />
+          <TemplatePreview
+            :header="headerType !== 'NONE' ? { type: headerType, text: headerText } : null"
+            :body="body"
+            :footer="footerText"
+            :buttons="buttons"
+          />
         </div>
       </div>
 

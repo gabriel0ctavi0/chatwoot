@@ -21,11 +21,22 @@ const store = useStore();
 
 const category = ref('MARKETING');
 const body = ref('');
+const headerType = ref('NONE');
+const headerText = ref('');
+const footerText = ref('');
 const buttons = ref([]);
 
 const isUpdating = computed(
   () => store.getters['whatsappTemplates/getUIFlags'].isUpdating
 );
+
+const HEADER_TYPE_OPTIONS = [
+  { value: 'NONE', label: 'None' },
+  { value: 'TEXT', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.TEXT' },
+  { value: 'IMAGE', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.IMAGE' },
+  { value: 'VIDEO', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.VIDEO' },
+  { value: 'DOCUMENT', label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.DOCUMENT' },
+];
 
 const CATEGORY_OPTIONS = [
   { value: 'MARKETING', label: 'WHATSAPP_TEMPLATES_MGMT.CATEGORIES.MARKETING' },
@@ -44,10 +55,23 @@ onMounted(() => {
   if (props.template) {
     category.value = props.template.category || 'MARKETING';
 
+    const headerComponent = props.template.components?.find(
+      c => c.type === 'HEADER'
+    );
+    if (headerComponent) {
+      headerType.value = headerComponent.format || 'TEXT';
+      headerText.value = headerComponent.text || '';
+    }
+
     const bodyComponent = props.template.components?.find(
       c => c.type === 'BODY'
     );
     body.value = bodyComponent?.text || '';
+
+    const footerComponent = props.template.components?.find(
+      c => c.type === 'FOOTER'
+    );
+    footerText.value = footerComponent?.text || '';
 
     const buttonsComponent = props.template.components?.find(
       c => c.type === 'BUTTONS'
@@ -70,6 +94,11 @@ const handleSubmit = async () => {
     const templateData = {
       category: category.value,
       body: body.value,
+      footer: footerText.value,
+      header: headerType.value !== 'NONE' ? {
+        type: headerType.value,
+        text: headerType.value === 'TEXT' ? headerText.value : undefined
+      } : null,
       buttons: buttons.value.filter(btn => btn.text),
     };
 
@@ -165,6 +194,35 @@ const handleSubmit = async () => {
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.LABEL') }}
+            </label>
+            <div class="flex gap-2">
+              <select
+                v-model="headerType"
+                class="rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak focus:outline-n-brand"
+              >
+                <option
+                  v-for="opt in HEADER_TYPE_OPTIONS"
+                  :key="opt.value"
+                  :value="opt.value"
+                >
+                  {{ t(opt.label) || opt.label }}
+                </option>
+              </select>
+              <Input
+                v-if="headerType === 'TEXT'"
+                v-model="headerText"
+                class="flex-1"
+                :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.PLACEHOLDER')"
+              />
+              <div v-else-if="headerType !== 'NONE'" class="flex-1 flex items-center px-3 rounded-lg bg-n-alpha-1 border border-dashed border-n-weak text-xs text-n-slate-10">
+                Media handle will be required when sending
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-n-slate-12">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.LABEL') }}
             </label>
             <textarea
@@ -172,12 +230,22 @@ const handleSubmit = async () => {
               :placeholder="
                 t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER')
               "
-              rows="6"
+              rows="10"
               class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand resize-none"
             />
             <span class="text-xs text-n-slate-10">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.HELP') }}
             </span>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.FOOTER.LABEL') }}
+            </label>
+            <Input
+              v-model="footerText"
+              :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.FOOTER.PLACEHOLDER')"
+            />
           </div>
 
           <TemplateButtonsEditor v-model="buttons" />
@@ -187,7 +255,12 @@ const handleSubmit = async () => {
         <div
           class="flex flex-col flex-1 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
         >
-          <TemplatePreview :body="body" :buttons="buttons" />
+          <TemplatePreview
+            :header="headerType !== 'NONE' ? { type: headerType, text: headerText } : null"
+            :body="body"
+            :footer="footerText"
+            :buttons="buttons"
+          />
         </div>
       </div>
 

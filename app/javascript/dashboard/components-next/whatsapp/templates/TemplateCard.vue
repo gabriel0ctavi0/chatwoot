@@ -9,7 +9,7 @@ const props = defineProps({
   template: { type: Object, required: true },
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const emit = defineEmits(['edit', 'delete', 'show-status-guide']);
 
 const { t } = useI18n();
 
@@ -19,31 +19,31 @@ const statusConfig = computed(() => {
     case 'APPROVED':
       return {
         icon: 'i-lucide-check-circle',
-        class: 'text-n-teal-11 bg-n-teal-3',
+        class: 'text-n-teal-11 bg-n-teal-3 hover:bg-n-teal-4 cursor-pointer',
         label: t('WHATSAPP_TEMPLATES_MGMT.STATUS.APPROVED'),
       };
     case 'REJECTED':
       return {
         icon: 'i-lucide-x-circle',
-        class: 'text-n-ruby-11 bg-n-ruby-3',
+        class: 'text-n-ruby-11 bg-n-ruby-3 hover:bg-n-ruby-4 cursor-pointer',
         label: t('WHATSAPP_TEMPLATES_MGMT.STATUS.REJECTED'),
       };
     case 'PAUSED':
       return {
         icon: 'i-lucide-pause-circle',
-        class: 'text-n-amber-11 bg-n-amber-3',
+        class: 'text-n-amber-11 bg-n-amber-3 hover:bg-n-amber-4 cursor-pointer',
         label: t('WHATSAPP_TEMPLATES_MGMT.STATUS.PAUSED'),
       };
     case 'DISABLED':
       return {
         icon: 'i-lucide-ban',
-        class: 'text-n-slate-10 bg-n-alpha-1',
+        class: 'text-n-slate-10 bg-n-alpha-1 hover:bg-n-alpha-2 cursor-pointer',
         label: t('WHATSAPP_TEMPLATES_MGMT.STATUS.DISABLED'),
       };
     default:
       return {
         icon: 'i-lucide-clock',
-        class: 'text-n-amber-11 bg-n-amber-3',
+        class: 'text-n-amber-11 bg-n-amber-3 hover:bg-n-amber-4 cursor-pointer',
         label: t('WHATSAPP_TEMPLATES_MGMT.STATUS.PENDING'),
       };
   }
@@ -83,8 +83,9 @@ const languageLabel = computed(() => {
         </span>
       </div>
       <span
-        class="inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+        class="inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium transition-colors"
         :class="statusConfig.class"
+        @click="emit('show-status-guide', template)"
       >
         <Icon :icon="statusConfig.icon" class="size-3.5" />
         {{ statusConfig.label }}

@@ -11,6 +11,7 @@ import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import TemplateCard from './TemplateCard.vue';
 import CreateTemplateDialog from './CreateTemplateDialog.vue';
 import EditTemplateDialog from './EditTemplateDialog.vue';
+import StatusGuideModal from './StatusGuideModal.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -20,6 +21,7 @@ const searchQuery = ref('');
 const selectedInboxId = ref(null);
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
+const showStatusGuide = ref(false);
 const selectedTemplate = ref(null);
 const deleteDialogRef = ref(null);
 const templateToDelete = ref(null);
@@ -88,11 +90,18 @@ const refreshTemplates = () => {
 };
 
 const handleEdit = template => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TemplatesPage.vue:handleEdit',message:'edit clicked',data:{templateName:template?.name,templateId:template?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
   selectedTemplate.value = template;
   showEditDialog.value = true;
+};
+
+const handleShowStatusGuide = template => {
+  selectedTemplate.value = template;
+  showStatusGuide.value = true;
+};
+
+const handleCloseStatusGuide = () => {
+  showStatusGuide.value = false;
+  selectedTemplate.value = null;
 };
 
 const handleCloseEdit = () => {
@@ -180,17 +189,17 @@ const handleDeleteConfirm = async () => {
               </select>
             </div>
             <div class="relative flex-1">
-              <Icon
-                icon="i-lucide-search"
-                class="absolute top-1/2 ltr:left-3 rtl:right-3 size-4 -translate-y-1/2 text-n-slate-9"
-              />
               <input
                 v-model="searchQuery"
                 type="text"
                 :placeholder="
                   t('WHATSAPP_TEMPLATES_MGMT.SEARCH_PLACEHOLDER')
                 "
-                class="w-full rounded-lg bg-n-solid-3 py-2 ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand"
+                class="w-full rounded-lg bg-n-solid-3 py-2 ltr:pr-10 rtl:pl-10 ltr:pl-3 rtl:pr-3 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand"
+              />
+              <Icon
+                icon="i-lucide-search"
+                class="absolute top-1/2 ltr:right-3 rtl:left-3 size-4 -translate-y-1/2 text-n-slate-9"
               />
             </div>
           </div>
@@ -214,6 +223,7 @@ const handleDeleteConfirm = async () => {
               :template="tmpl"
               @edit="handleEdit"
               @delete="handleDeleteClick"
+              @show-status-guide="handleShowStatusGuide"
             />
           </div>
 
@@ -252,6 +262,13 @@ const handleDeleteConfirm = async () => {
       :template="selectedTemplate"
       @close="handleCloseEdit"
       @updated="refreshTemplates"
+    />
+
+    <!-- Status Guide Modal -->
+    <StatusGuideModal
+      v-if="showStatusGuide && selectedTemplate"
+      :current-status="selectedTemplate.status"
+      @close="handleCloseStatusGuide"
     />
 
     <!-- Delete confirmation dialog -->

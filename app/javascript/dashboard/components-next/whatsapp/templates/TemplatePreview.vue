@@ -4,7 +4,9 @@ import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const props = defineProps({
+  header: { type: Object, default: null },
   body: { type: String, default: '' },
+  footer: { type: String, default: '' },
   buttons: { type: Array, default: () => [] },
 });
 
@@ -13,6 +15,14 @@ const { t } = useI18n();
 const processedBody = computed(() => {
   if (!props.body) return '';
   return props.body.replace(
+    /\{\{([^}]+)\}\}/g,
+    '<span class="px-1 rounded bg-n-amber-3 text-n-amber-11 font-medium">[$1]</span>'
+  );
+});
+
+const processedHeader = computed(() => {
+  if (props.header?.type !== 'TEXT' || !props.header?.text) return '';
+  return props.header.text.replace(
     /\{\{([^}]+)\}\}/g,
     '<span class="px-1 rounded bg-n-amber-3 text-n-amber-11 font-medium">[$1]</span>'
   );
@@ -37,8 +47,27 @@ const buttonIcon = type => {
     </span>
     <div class="flex flex-col items-end gap-1">
       <div
-        class="relative w-full max-w-sm rounded-xl rounded-tr-sm bg-n-teal-3 p-3 shadow-sm"
+        class="relative w-full max-w-sm rounded-xl rounded-tr-sm bg-n-teal-3 p-3 shadow-sm flex flex-col gap-1"
       >
+        <div
+          v-if="header && header.type !== 'NONE'"
+          class="mb-1"
+        >
+          <div
+            v-if="header.type === 'TEXT'"
+            class="text-sm font-bold text-n-slate-12"
+            v-html="processedHeader"
+          />
+          <div
+            v-else
+            class="flex items-center justify-center aspect-video rounded-lg bg-n-alpha-1 border border-n-weak text-n-slate-9"
+          >
+            <Icon
+              :icon="header.type === 'IMAGE' ? 'i-lucide-image' : header.type === 'VIDEO' ? 'i-lucide-play-circle' : 'i-lucide-file-text'"
+              class="size-8"
+            />
+          </div>
+        </div>
         <p
           v-if="body"
           class="mb-0 text-sm leading-relaxed text-n-slate-12 whitespace-pre-line break-words"
@@ -47,6 +76,12 @@ const buttonIcon = type => {
         <p v-else class="mb-0 text-sm italic text-n-slate-9">
           {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER') }}
         </p>
+        <div
+          v-if="footer"
+          class="mt-1 text-[11px] text-n-slate-10 font-medium"
+        >
+          {{ footer }}
+        </div>
       </div>
       <div
         v-if="buttons.length > 0"

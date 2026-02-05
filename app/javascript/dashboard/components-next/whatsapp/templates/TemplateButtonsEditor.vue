@@ -19,22 +19,30 @@ const BUTTON_TYPE_OPTIONS = [
   {
     value: 'QUICK_REPLY',
     label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.TYPE.QUICK_REPLY',
+    icon: 'i-lucide-reply',
   },
   {
     value: 'URL',
     label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.TYPE.URL',
+    icon: 'i-lucide-external-link',
   },
   {
     value: 'PHONE_NUMBER',
     label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.TYPE.PHONE_NUMBER',
+    icon: 'i-lucide-phone',
+  },
+  {
+    value: 'COPY_CODE',
+    label: 'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.TYPE.COPY_CODE',
+    icon: 'i-lucide-copy',
   },
 ];
 
-const addButton = () => {
+const addButton = type => {
   if (props.modelValue.length >= MAX_BUTTONS) return;
   emit('update:modelValue', [
     ...props.modelValue,
-    { type: 'QUICK_REPLY', text: '', url: '', phone_number: '' },
+    { type: type || 'QUICK_REPLY', text: '', url: '', phone_number: '' },
   ]);
 };
 
@@ -54,47 +62,41 @@ const updateButton = (index, field, value) => {
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-2">
       <label class="text-sm font-medium text-n-slate-12">
         {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.LABEL') }}
       </label>
-      <Button
-        v-if="modelValue.length < MAX_BUTTONS"
-        :label="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.ADD')"
-        icon="i-lucide-plus"
-        size="xs"
-        variant="faded"
-        color="slate"
-        @click="addButton"
-      />
+      <div v-if="modelValue.length < MAX_BUTTONS" class="flex flex-wrap gap-2">
+        <Button
+          v-for="opt in BUTTON_TYPE_OPTIONS"
+          :key="opt.value"
+          :label="t(opt.label)"
+          :icon="opt.icon"
+          size="xs"
+          variant="faded"
+          color="slate"
+          class="!bg-n-alpha-1 hover:!bg-n-alpha-2"
+          @click="addButton(opt.value)"
+        />
+      </div>
     </div>
     <p
       v-if="modelValue.length >= MAX_BUTTONS"
-      class="mb-0 text-xs text-n-slate-10"
+      class="mb-0 text-xs text-n-slate-10 italic"
     >
       {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.MAX_REACHED') }}
     </p>
     <div
       v-for="(btn, idx) in modelValue"
       :key="idx"
-      class="flex flex-col gap-2 rounded-lg bg-n-alpha-1 p-3"
+      class="flex flex-col gap-2 rounded-lg bg-n-alpha-1 p-3 border border-n-weak"
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <Icon icon="i-lucide-grip-vertical" class="size-4 text-n-slate-9" />
-          <select
-            :value="btn.type"
-            class="rounded-md bg-n-solid-3 px-2 py-1 text-xs text-n-slate-12 outline outline-n-weak focus:outline-n-brand"
-            @change="updateButton(idx, 'type', $event.target.value)"
-          >
-            <option
-              v-for="opt in BUTTON_TYPE_OPTIONS"
-              :key="opt.value"
-              :value="opt.value"
-            >
-              {{ t(opt.label) }}
-            </option>
-          </select>
+          <Icon :icon="BUTTON_TYPE_OPTIONS.find(o => o.value === btn.type)?.icon" class="size-4 text-n-brand" />
+          <span class="text-xs font-bold text-n-slate-11 uppercase tracking-wider">
+            {{ t(BUTTON_TYPE_OPTIONS.find(o => o.value === btn.type)?.label) }}
+          </span>
         </div>
         <Button
           icon="i-lucide-trash-2"
@@ -105,6 +107,7 @@ const updateButton = (index, field, value) => {
         />
       </div>
       <Input
+        v-if="btn.type !== 'COPY_CODE'"
         :model-value="btn.text"
         :label="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BUTTONS.TEXT.LABEL')"
         :placeholder="

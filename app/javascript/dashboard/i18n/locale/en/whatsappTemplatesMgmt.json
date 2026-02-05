@@ -31,6 +31,34 @@
       "ja": "Japanese",
       "zh_CN": "Chinese (Simplified)"
     },
+    "STATUS_GUIDE": {
+      "TITLE": "Template Status Guide",
+      "SUBTITLE": "Understand what each status means and what to do in each situation",
+      "APPROVED": {
+        "TITLE": "Approved",
+        "BADGE": "Can use",
+        "DESCRIPTION": "This template has been reviewed and approved by Meta. You can use it normally in broadcasts and automations.",
+        "ACTION": "No action required"
+      },
+      "PENDING": {
+        "TITLE": "In Analysis",
+        "BADGE": "Cannot use yet",
+        "DESCRIPTION": "Meta is reviewing this template. The process usually takes a few minutes up to 24 hours. It cannot be used until approved.",
+        "ACTION": "Wait for approval"
+      },
+      "PAUSED": {
+        "TITLE": "Paused",
+        "BADGE": "Cannot use",
+        "DESCRIPTION": "Meta paused this template automatically because it detected low read rates, many user complaints or blocks. This is temporary and lasts from 3 to 6 hours.",
+        "ACTION": "Wait a few hours. Consider improving the content to avoid new pauses. After 3 pauses, the template is permanently disabled."
+      },
+      "REJECTED": {
+        "TITLE": "Rejected",
+        "BADGE": "Cannot use",
+        "DESCRIPTION": "Meta rejected this template for violating its policies. Check if the content contains spam, prohibited content or does not follow template guidelines.",
+        "ACTION": "Edit the template correcting the problems or create a new one"
+      }
+    },
     "CARD": {
       "EDIT": "Edit",
       "DELETE": "Delete",
@@ -56,13 +84,26 @@
           "LABEL": "Language",
           "PLACEHOLDER": "Select a language"
         },
+        "HEADER": {
+          "LABEL": "Header (Optional)",
+          "PLACEHOLDER": "Enter header text",
+          "TYPE_LABEL": "Header Type",
+          "TEXT": "Text",
+          "IMAGE": "Image",
+          "VIDEO": "Video",
+          "DOCUMENT": "Document"
+        },
         "BODY": {
           "LABEL": "Message Body",
           "PLACEHOLDER": "Type your message here. Add variables with double curly braces.",
           "HELP": "Wrap variable names in double curly braces, e.g. first_name or 1"
         },
+        "FOOTER": {
+          "LABEL": "Footer (Optional)",
+          "PLACEHOLDER": "Enter footer text"
+        },
         "BUTTONS": {
-          "LABEL": "Buttons",
+          "LABEL": "Buttons (Optional)",
           "ADD": "Add Button",
           "REMOVE": "Remove",
           "MAX_REACHED": "Maximum of 3 buttons allowed",
@@ -70,7 +111,8 @@
             "LABEL": "Button Type",
             "QUICK_REPLY": "Quick Reply",
             "URL": "URL",
-            "PHONE_NUMBER": "Phone Number"
+            "PHONE_NUMBER": "Phone Number",
+            "COPY_CODE": "Copy Code"
           },
           "TEXT": {
             "LABEL": "Button Text",
