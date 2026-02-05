@@ -88,8 +88,16 @@ const refreshTemplates = () => {
 };
 
 const handleEdit = template => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TemplatesPage.vue:handleEdit',message:'edit clicked',data:{templateName:template?.name,templateId:template?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+  // #endregion
   selectedTemplate.value = template;
   showEditDialog.value = true;
+};
+
+const handleCloseEdit = () => {
+  showEditDialog.value = false;
+  selectedTemplate.value = null;
 };
 
 const handleDeleteClick = template => {
@@ -242,7 +250,7 @@ const handleDeleteConfirm = async () => {
       v-if="showEditDialog && selectedTemplate"
       :inbox-id="selectedInboxId"
       :template="selectedTemplate"
-      @close="showEditDialog = false; selectedTemplate = null"
+      @close="handleCloseEdit"
       @updated="refreshTemplates"
     />
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
@@ -8,6 +8,26 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import TemplatePreview from './TemplatePreview.vue';
 import TemplateButtonsEditor from './TemplateButtonsEditor.vue';
+
+// #region agent log
+onMounted(() => {
+  try {
+    const testKeys = [
+      'WHATSAPP_TEMPLATES_MGMT.CREATE.TITLE',
+      'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER',
+      'WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.HELP',
+    ];
+    const results = {};
+    const { t: tFn } = useI18n();
+    testKeys.forEach(k => {
+      try { results[k] = tFn(k); } catch (e) { results[k] = `ERROR: ${e.message}`; }
+    });
+    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateTemplateDialog.vue:onMounted',message:'i18n key test',data:results,timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  } catch (e) {
+    fetch('http://127.0.0.1:7242/ingest/0cd325ca-3cb9-438d-a5fa-3e135287d10f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateTemplateDialog.vue:onMounted',message:'i18n test FAILED',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  }
+});
+// #endregion
 
 const props = defineProps({
   inboxId: { type: [Number, String], required: true },
