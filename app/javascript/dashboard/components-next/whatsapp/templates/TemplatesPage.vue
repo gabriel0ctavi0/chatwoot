@@ -195,11 +195,7 @@ const handleDeleteConfirm = async () => {
                 :placeholder="
                   t('WHATSAPP_TEMPLATES_MGMT.SEARCH_PLACEHOLDER')
                 "
-                class="w-full rounded-lg bg-n-solid-3 py-2 ltr:pr-10 rtl:pl-10 ltr:pl-3 rtl:pr-3 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand"
-              />
-              <Icon
-                icon="i-lucide-search"
-                class="absolute top-1/2 ltr:right-3 rtl:left-3 size-4 -translate-y-1/2 text-n-slate-9"
+                class="w-full rounded-lg bg-n-solid-3 py-2 px-3 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand"
               />
             </div>
           </div>

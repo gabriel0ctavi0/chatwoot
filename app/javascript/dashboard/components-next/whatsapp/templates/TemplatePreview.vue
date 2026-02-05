@@ -60,9 +60,15 @@ const buttonIcon = type => {
           />
           <div
             v-else
-            class="flex items-center justify-center aspect-video rounded-lg bg-n-alpha-1 border border-n-weak text-n-slate-9"
+            class="flex items-center justify-center aspect-video rounded-lg bg-n-alpha-1 border border-n-weak text-n-slate-9 overflow-hidden"
           >
+            <img
+              v-if="header.type === 'IMAGE' && header.imageUrl"
+              :src="header.imageUrl"
+              class="w-full h-full object-cover"
+            />
             <Icon
+              v-else
               :icon="header.type === 'IMAGE' ? 'i-lucide-image' : header.type === 'VIDEO' ? 'i-lucide-play-circle' : 'i-lucide-file-text'"
               class="size-8"
             />

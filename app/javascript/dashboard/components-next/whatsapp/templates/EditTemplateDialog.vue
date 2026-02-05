@@ -23,12 +23,26 @@ const category = ref('MARKETING');
 const body = ref('');
 const headerType = ref('NONE');
 const headerText = ref('');
+const headerFile = ref(null);
+const headerImageUrl = ref('');
 const footerText = ref('');
 const buttons = ref([]);
 
 const isUpdating = computed(
   () => store.getters['whatsappTemplates/getUIFlags'].isUpdating
 );
+
+const handleHeaderFileChange = event => {
+  const file = event.target.files[0];
+  if (file) {
+    headerFile.value = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      headerImageUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
 const HEADER_TYPE_OPTIONS = [
   { value: 'NONE', label: 'None' },
@@ -196,10 +210,10 @@ const handleSubmit = async () => {
             <label class="text-sm font-medium text-n-slate-12">
               {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.LABEL') }}
             </label>
-            <div class="flex gap-2">
+            <div class="flex flex-col gap-2">
               <select
                 v-model="headerType"
-                class="rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak focus:outline-n-brand"
+                class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak focus:outline-n-brand"
               >
                 <option
                   v-for="opt in HEADER_TYPE_OPTIONS"
@@ -212,10 +226,28 @@ const handleSubmit = async () => {
               <Input
                 v-if="headerType === 'TEXT'"
                 v-model="headerText"
-                class="flex-1"
+                class="w-full"
                 :placeholder="t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.HEADER.PLACEHOLDER')"
               />
-              <div v-else-if="headerType !== 'NONE'" class="flex-1 flex items-center px-3 rounded-lg bg-n-alpha-1 border border-dashed border-n-weak text-xs text-n-slate-10">
+              <div v-else-if="headerType === 'IMAGE'" class="flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  ref="imageInput"
+                  @change="handleHeaderFileChange"
+                />
+                <Button
+                  :label="headerFile ? headerFile.name : 'Choose Image'"
+                  icon="i-lucide-image"
+                  variant="faded"
+                  color="slate"
+                  size="sm"
+                  class="w-full"
+                  @click="$refs.imageInput.click()"
+                />
+              </div>
+              <div v-else-if="headerType !== 'NONE'" class="w-full flex items-center px-3 py-2 rounded-lg bg-n-alpha-1 border border-dashed border-n-weak text-xs text-n-slate-10">
                 Media handle will be required when sending
               </div>
             </div>
@@ -256,7 +288,7 @@ const handleSubmit = async () => {
           class="flex flex-col flex-1 rounded-xl border border-n-weak bg-n-alpha-1 p-4"
         >
           <TemplatePreview
-            :header="headerType !== 'NONE' ? { type: headerType, text: headerText } : null"
+            :header="headerType !== 'NONE' ? { type: headerType, text: headerText, imageUrl: headerImageUrl } : null"
             :body="body"
             :footer="footerText"
             :buttons="buttons"
