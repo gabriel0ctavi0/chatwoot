@@ -5,7 +5,7 @@ import { useAlert } from 'dashboard/composables';
 import { useAgentsList } from 'dashboard/composables/useAgentsList';
 import ContactDetailsItem from './ContactDetailsItem.vue';
 import MultiselectDropdown from 'shared/components/ui/MultiselectDropdown.vue';
-import ConversationLabels from './labels/LabelBox.vue';
+import ContactTagsSidebar from './contact/ContactTagsSidebar.vue';
 import { CONVERSATION_PRIORITY } from '../../../../shared/constants/messages';
 import { CONVERSATION_EVENTS } from '../../../helper/AnalyticsHelper/events';
 import { useTrack } from 'dashboard/composables';
@@ -15,7 +15,7 @@ export default {
   components: {
     ContactDetailsItem,
     MultiselectDropdown,
-    ConversationLabels,
+    ContactTagsSidebar,
     NextButton,
   },
   props: {
@@ -278,8 +278,8 @@ export default {
     </div>
     <ContactDetailsItem
       compact
-      :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_LABELS')"
+      :title="$t('CONVERSATION_SIDEBAR.ACCORDION.TAGS')"
     />
-    <ConversationLabels :conversation-id="conversationId" />
+    <ContactTagsSidebar />
   </div>
 </template>

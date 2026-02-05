@@ -18,6 +18,7 @@ const props = defineProps({
   additionalAttributes: { type: Object, default: () => ({}) },
   phoneNumber: { type: String, default: '' },
   thumbnail: { type: String, default: '' },
+  contactTagList: { type: Array, default: () => [] },
   availabilityStatus: { type: String, default: null },
   isExpanded: { type: Boolean, default: false },
   isUpdating: { type: Boolean, default: false },
@@ -43,6 +44,7 @@ const getInitialContactData = () => ({
   email: props.email,
   phoneNumber: props.phoneNumber,
   additionalAttributes: props.additionalAttributes,
+  contactTagList: props.contactTagList ?? [],
 });
 
 const contactData = ref(getInitialContactData());
