@@ -84,8 +84,12 @@ onMounted(() => {
       headerType.value = headerComponent.format || 'TEXT';
       originalHeaderType.value = headerComponent.format || 'TEXT';
       headerText.value = headerComponent.text || '';
-      if (headerComponent.example?.header_url?.[0]) {
-        headerImageUrl.value = headerComponent.example.header_url[0];
+      // Meta returns media URLs in example.header_url (array) for approved templates
+      const exampleUrl = headerComponent.example?.header_url?.[0]
+        || headerComponent.example?.header_handle?.[0];
+      if (exampleUrl && exampleUrl.startsWith('http')) {
+        if (headerComponent.format === 'IMAGE') headerImageUrl.value = exampleUrl;
+        if (headerComponent.format === 'VIDEO') headerVideoUrl.value = exampleUrl;
       }
     }
 
@@ -120,7 +124,7 @@ const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
   try {
-    let mediaUrl = null;
+    let mediaHandle = null;
 
     if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType.value) && headerFile.value) {
       isUploading.value = true;
@@ -128,7 +132,7 @@ const handleSubmit = async () => {
         inboxId: props.inboxId,
         file: headerFile.value,
       });
-      mediaUrl = uploadResult.url;
+      mediaHandle = uploadResult.handle;
       isUploading.value = false;
     }
 
@@ -138,8 +142,8 @@ const handleSubmit = async () => {
         return { type: 'TEXT', text: headerText.value };
       }
       // For media headers: only include if user uploaded a new file or it's a new type
-      if (mediaUrl) {
-        return { type: headerType.value, media_url: mediaUrl };
+      if (mediaHandle) {
+        return { type: headerType.value, media_handle: mediaHandle };
       }
       // If no new file and same type as original, don't send header (keep existing)
       if (headerType.value === originalHeaderType.value) return undefined;

@@ -67,7 +67,61 @@ class Whatsapp::TemplateManagementService
     end
   end
 
+  def upload_media(file_path, content_type, file_name)
+    app_id = fetch_app_id
+    raise 'Could not determine App ID from access token' if app_id.blank?
+
+    file_size = File.size(file_path)
+    session_id = create_upload_session(app_id, file_name, file_size, content_type)
+    raise "Failed to create upload session: #{session_id}" if session_id.blank?
+
+    handle = upload_file_to_session(session_id, file_path)
+    raise "Failed to upload file: no handle returned" if handle.blank?
+
+    { success: true, handle: handle }
+  rescue StandardError => e
+    Rails.logger.error "[WhatsApp TemplateManagement] upload_media failed: #{e.message}"
+    { success: false, error: e.message }
+  end
+
   private
+
+  def fetch_app_id
+    response = HTTParty.get(
+      "#{api_base_path}/#{WHATSAPP_API_VERSION}/debug_token",
+      query: { input_token: api_key, access_token: api_key }
+    )
+    response.dig('data', 'app_id')
+  end
+
+  def create_upload_session(app_id, file_name, file_length, file_type)
+    response = HTTParty.post(
+      "#{api_base_path}/#{WHATSAPP_API_VERSION}/#{app_id}/uploads",
+      query: {
+        file_name: file_name,
+        file_length: file_length,
+        file_type: file_type,
+        access_token: api_key
+      }
+    )
+    Rails.logger.info "[WhatsApp TemplateManagement] Upload session response: #{response.body}"
+    response['id']
+  end
+
+  def upload_file_to_session(session_id, file_path)
+    file_data = File.binread(file_path)
+    response = HTTParty.post(
+      "#{api_base_path}/#{WHATSAPP_API_VERSION}/#{session_id}",
+      headers: {
+        'Authorization' => "OAuth #{api_key}",
+        'file_offset' => '0',
+        'Content-Type' => 'application/octet-stream'
+      },
+      body: file_data
+    )
+    Rails.logger.info "[WhatsApp TemplateManagement] Upload file response: #{response.body}"
+    response['h']
+  end
 
   def build_create_request_body(params)
     body = {
@@ -93,7 +147,7 @@ class Whatsapp::TemplateManagementService
     components << { type: 'BODY', text: params[:body] } if params[:body].present?
     components << { type: 'FOOTER', text: params[:footer] } if params[:footer].present?
     components << build_buttons_component(params[:buttons]) if params[:buttons].present?
-    components
+    components.compact
   end
 
   def build_header_component(header)
@@ -104,7 +158,7 @@ class Whatsapp::TemplateManagementService
       { type: 'HEADER', format: 'TEXT', text: header[:text] }
     when 'IMAGE', 'VIDEO', 'DOCUMENT'
       component = { type: 'HEADER', format: header[:type].upcase }
-      component[:example] = { header_url: [header[:media_url]] } if header[:media_url].present?
+      component[:example] = { header_handle: [header[:media_handle]] } if header[:media_handle].present?
       component
     end
   end

@@ -50,14 +50,14 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
     file = params[:file]
     return render json: { error: 'No file provided' }, status: :bad_request if file.blank?
 
-    blob = ActiveStorage::Blob.create_and_upload!(
-      io: file.tempfile,
-      filename: file.original_filename,
-      content_type: file.content_type
-    )
+    service = Whatsapp::TemplateManagementService.new(@inbox.channel)
+    result = service.upload_media(file.tempfile.path, file.content_type, file.original_filename)
 
-    url = rails_blob_url(blob, host: ENV.fetch('FRONTEND_URL', request.base_url))
-    render json: { url: url }
+    if result[:success]
+      render json: { handle: result[:handle] }
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
   end
 
   private
@@ -75,7 +75,7 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
 
   def template_params
     params.require(:template).permit(:name, :category, :language, :body, :footer, :parameter_format,
-                                     header: [:type, :text, :media_url],
+                                     header: [:type, :text, :media_handle],
                                      buttons: [:type, :text, :url, :phone_number])
   end
 

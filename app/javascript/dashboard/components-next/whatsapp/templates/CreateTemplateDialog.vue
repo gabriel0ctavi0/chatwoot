@@ -107,7 +107,7 @@ const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
   try {
-    let mediaUrl = null;
+    let mediaHandle = null;
 
     if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType.value) && headerFile.value) {
       isUploading.value = true;
@@ -115,7 +115,7 @@ const handleSubmit = async () => {
         inboxId: props.inboxId,
         file: headerFile.value,
       });
-      mediaUrl = uploadResult.url;
+      mediaHandle = uploadResult.handle;
       isUploading.value = false;
     }
 
@@ -128,7 +128,7 @@ const handleSubmit = async () => {
       header: headerType.value !== 'NONE' ? {
         type: headerType.value,
         text: headerType.value === 'TEXT' ? headerText.value : undefined,
-        media_url: mediaUrl || undefined,
+        media_handle: mediaHandle || undefined,
       } : undefined,
       buttons: buttons.value.filter(btn => btn.text),
     };
