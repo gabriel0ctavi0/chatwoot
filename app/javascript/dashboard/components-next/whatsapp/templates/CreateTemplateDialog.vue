@@ -101,10 +101,24 @@ const nameError = computed(() => {
   return '';
 });
 
+const isUploading = ref(false);
+
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
   try {
+    let mediaUrl = null;
+
+    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType.value) && headerFile.value) {
+      isUploading.value = true;
+      const uploadResult = await store.dispatch('whatsappTemplates/uploadMedia', {
+        inboxId: props.inboxId,
+        file: headerFile.value,
+      });
+      mediaUrl = uploadResult.url;
+      isUploading.value = false;
+    }
+
     const templateData = {
       name: name.value,
       category: category.value,
@@ -113,7 +127,8 @@ const handleSubmit = async () => {
       footer: footerText.value,
       header: headerType.value !== 'NONE' ? {
         type: headerType.value,
-        text: headerType.value === 'TEXT' ? headerText.value : undefined
+        text: headerType.value === 'TEXT' ? headerText.value : undefined,
+        media_url: mediaUrl || undefined,
       } : undefined,
       buttons: buttons.value.filter(btn => btn.text),
     };
@@ -127,6 +142,7 @@ const handleSubmit = async () => {
     emit('created');
     emit('close');
   } catch {
+    isUploading.value = false;
     useAlert(t('WHATSAPP_TEMPLATES_MGMT.CREATE.API.ERROR_MESSAGE'));
   }
 };
@@ -315,8 +331,8 @@ const handleSubmit = async () => {
         <Button
           :label="t('WHATSAPP_TEMPLATES_MGMT.CREATE.SUBMIT')"
           icon="i-lucide-plus"
-          :is-loading="isCreating"
-          :disabled="!isFormValid || isCreating"
+          :is-loading="isCreating || isUploading"
+          :disabled="!isFormValid || isCreating || isUploading"
           @click="handleSubmit"
         />
       </div>

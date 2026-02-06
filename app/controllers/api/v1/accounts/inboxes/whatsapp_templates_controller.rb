@@ -46,6 +46,20 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
     end
   end
 
+  def upload_media
+    file = params[:file]
+    return render json: { error: 'No file provided' }, status: :bad_request if file.blank?
+
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: file.tempfile,
+      filename: file.original_filename,
+      content_type: file.content_type
+    )
+
+    url = rails_blob_url(blob, host: ENV.fetch('FRONTEND_URL', request.base_url))
+    render json: { url: url }
+  end
+
   private
 
   def fetch_inbox
@@ -61,7 +75,7 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
 
   def template_params
     params.require(:template).permit(:name, :category, :language, :body, :footer, :parameter_format,
-                                     header: [:type, :text],
+                                     header: [:type, :text, :media_url],
                                      buttons: [:type, :text, :url, :phone_number])
   end
 

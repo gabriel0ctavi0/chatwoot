@@ -65,6 +65,11 @@ const actions = {
     }
   },
 
+  async uploadMedia(_, { inboxId, file } = {}) {
+    const { data } = await WhatsappTemplatesAPI.uploadMedia(inboxId, file);
+    return data;
+  },
+
   async delete(
     { commit },
     { inboxId, templateId, templateName } = {}

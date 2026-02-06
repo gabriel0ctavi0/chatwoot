@@ -32,6 +32,16 @@ class WhatsappTemplatesAPI extends ApiClient {
       `${this.url}/${inboxId}/whatsapp_templates/${templateId}?name=${templateName}`
     );
   }
+
+  uploadMedia(inboxId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(
+      `${this.url}/${inboxId}/whatsapp_templates/upload_media`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+  }
 }
 
 export default new WhatsappTemplatesAPI();

@@ -82,12 +82,10 @@ onMounted(() => {
     );
     if (headerComponent) {
       headerType.value = headerComponent.format || 'TEXT';
+      originalHeaderType.value = headerComponent.format || 'TEXT';
       headerText.value = headerComponent.text || '';
       if (headerComponent.example?.header_url?.[0]) {
         headerImageUrl.value = headerComponent.example.header_url[0];
-      } else if (headerComponent.example?.header_handle?.[0]) {
-        // Fallback or placeholder if only handle is available
-        headerImageUrl.value = '';
       }
     }
 
@@ -115,18 +113,44 @@ onMounted(() => {
   }
 });
 
+const isUploading = ref(false);
+const originalHeaderType = ref('NONE');
+
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
   try {
+    let mediaUrl = null;
+
+    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType.value) && headerFile.value) {
+      isUploading.value = true;
+      const uploadResult = await store.dispatch('whatsappTemplates/uploadMedia', {
+        inboxId: props.inboxId,
+        file: headerFile.value,
+      });
+      mediaUrl = uploadResult.url;
+      isUploading.value = false;
+    }
+
+    const headerData = (() => {
+      if (headerType.value === 'NONE') return undefined;
+      if (headerType.value === 'TEXT') {
+        return { type: 'TEXT', text: headerText.value };
+      }
+      // For media headers: only include if user uploaded a new file or it's a new type
+      if (mediaUrl) {
+        return { type: headerType.value, media_url: mediaUrl };
+      }
+      // If no new file and same type as original, don't send header (keep existing)
+      if (headerType.value === originalHeaderType.value) return undefined;
+      return { type: headerType.value };
+    })();
+
     const templateData = {
       category: category.value,
       body: body.value,
       footer: footerText.value,
-      header: headerType.value !== 'NONE' ? {
-        type: headerType.value,
-        text: headerType.value === 'TEXT' ? headerText.value : undefined
-      } : undefined,
+      header: headerData,
       buttons: buttons.value.filter(btn => btn.text),
     };
 
@@ -140,6 +164,7 @@ const handleSubmit = async () => {
     emit('updated');
     emit('close');
   } catch {
+    isUploading.value = false;
     useAlert(t('WHATSAPP_TEMPLATES_MGMT.EDIT.API.ERROR_MESSAGE'));
   }
 };
@@ -327,8 +352,8 @@ const handleSubmit = async () => {
         <Button
           :label="t('WHATSAPP_TEMPLATES_MGMT.EDIT.SUBMIT')"
           icon="i-lucide-save"
-          :is-loading="isUpdating"
-          :disabled="!isFormValid || isUpdating"
+          :is-loading="isUpdating || isUploading"
+          :disabled="!isFormValid || isUpdating || isUploading"
           @click="handleSubmit"
         />
       </div>

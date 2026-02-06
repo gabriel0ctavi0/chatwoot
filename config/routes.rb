@@ -225,7 +225,11 @@ Rails.application.routes.draw do
             end
 
             resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates'
-            resources :whatsapp_templates, only: [:index, :create, :update, :destroy], module: :inboxes
+            resources :whatsapp_templates, only: [:index, :create, :update, :destroy], module: :inboxes do
+              collection do
+                post :upload_media
+              end
+            end
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do

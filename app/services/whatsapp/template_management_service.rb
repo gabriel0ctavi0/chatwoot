@@ -103,7 +103,9 @@ class Whatsapp::TemplateManagementService
     when 'TEXT'
       { type: 'HEADER', format: 'TEXT', text: header[:text] }
     when 'IMAGE', 'VIDEO', 'DOCUMENT'
-      { type: 'HEADER', format: header[:type].upcase, example: { header_handle: ['WILL_BE_PROVIDED_ON_SEND'] } }
+      component = { type: 'HEADER', format: header[:type].upcase }
+      component[:example] = { header_url: [header[:media_url]] } if header[:media_url].present?
+      component
     end
   end
 
