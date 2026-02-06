@@ -6,6 +6,7 @@ import { vOnClickOutside } from '@vueuse/components';
 import BulkSelectBar from 'dashboard/components-next/captain/assistant/BulkSelectBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import LabelActions from 'dashboard/components/widgets/conversation/conversationBulkActions/LabelActions.vue';
+import TagActions from 'dashboard/components/widgets/conversation/conversationBulkActions/TagActions.vue';
 import Policy from 'dashboard/components/policy.vue';
 
 const props = defineProps({
@@ -26,6 +27,7 @@ const props = defineProps({
 const emit = defineEmits([
   'clearSelection',
   'assignLabels',
+  'assignTags',
   'toggleAll',
   'deleteSelected',
 ]);
@@ -35,6 +37,7 @@ const { t } = useI18n();
 const selectedCount = computed(() => props.selectedContactIds.length);
 const totalVisibleContacts = computed(() => props.visibleContactIds.length);
 const showLabelSelector = ref(false);
+const showTagSelector = ref(false);
 
 const selectAllLabel = computed(() => {
   if (!totalVisibleContacts.value) {
@@ -74,12 +77,14 @@ const selectionModel = computed({
 
 const emitClearSelection = () => {
   showLabelSelector.value = false;
+  showTagSelector.value = false;
   emit('clearSelection');
 };
 
 const toggleLabelSelector = () => {
   if (!selectedCount.value || props.isLoading) return;
   showLabelSelector.value = !showLabelSelector.value;
+  showTagSelector.value = false;
 };
 
 const closeLabelSelector = () => {
@@ -89,6 +94,21 @@ const closeLabelSelector = () => {
 const handleAssignLabels = labels => {
   emit('assignLabels', labels);
   closeLabelSelector();
+};
+
+const toggleTagSelector = () => {
+  if (!selectedCount.value || props.isLoading) return;
+  showTagSelector.value = !showTagSelector.value;
+  showLabelSelector.value = false;
+};
+
+const closeTagSelector = () => {
+  showTagSelector.value = false;
+};
+
+const handleAssignTags = tags => {
+  emit('assignTags', tags);
+  closeTagSelector();
 };
 </script>
 
@@ -142,6 +162,36 @@ const handleAssignLabels = labels => {
                 v-if="showLabelSelector"
                 class="[&>.triangle]:!hidden [&>div>button]:!hidden ltr:!right-0 rtl:!left-0 top-8 mt-0.5"
                 @assign="handleAssignLabels"
+              />
+            </transition>
+          </div>
+          <div
+            v-on-click-outside="closeTagSelector"
+            class="relative flex items-center"
+          >
+            <Button
+              sm
+              faded
+              slate
+              icon="i-lucide-tag"
+              :label="t('CONTACTS_BULK_ACTIONS.ASSIGN_TAGS')"
+              :disabled="!selectedCount || isLoading"
+              :is-loading="isLoading"
+              class="[&>span:nth-child(2)]:hidden sm:[&>span:nth-child(2)]:inline w-fit"
+              @click="toggleTagSelector"
+            />
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <TagActions
+                v-if="showTagSelector"
+                class="[&>.triangle]:!hidden [&>div>button]:!hidden ltr:!right-0 rtl:!left-0 top-8 mt-0.5"
+                @assign="handleAssignTags"
               />
             </transition>
           </div>

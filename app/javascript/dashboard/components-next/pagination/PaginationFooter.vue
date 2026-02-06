@@ -1,9 +1,11 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useNumberFormatter } from 'shared/composables/useNumberFormatter';
+import { vOnClickOutside } from '@vueuse/components';
 
 import Button from 'dashboard/components-next/button/Button.vue';
+import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
 
 const props = defineProps({
   currentPage: {
@@ -23,9 +25,11 @@ const props = defineProps({
     default: '',
   },
 });
-const emit = defineEmits(['update:currentPage']);
+const emit = defineEmits(['update:currentPage', 'update:itemsPerPage']);
 const { t } = useI18n();
 const { formatCompactNumber, formatFullNumber } = useNumberFormatter();
+
+const showItemsPerPageMenu = ref(false);
 
 const totalPages = computed(() =>
   Math.ceil(props.totalItems / props.itemsPerPage)
@@ -38,10 +42,31 @@ const endItem = computed(() =>
 );
 const isFirstPage = computed(() => props.currentPage === 1);
 const isLastPage = computed(() => props.currentPage === totalPages.value);
+
+const itemsPerPageOptions = [25, 50, 100, 150, 200].map(value => ({
+  label: value.toString(),
+  value,
+  action: 'select',
+  isSelected: value === props.itemsPerPage,
+}));
+
 const changePage = newPage => {
   if (newPage >= 1 && newPage <= totalPages.value) {
     emit('update:currentPage', newPage);
   }
+};
+
+const toggleItemsPerPageMenu = () => {
+  showItemsPerPageMenu.value = !showItemsPerPageMenu.value;
+};
+
+const closeItemsPerPageMenu = () => {
+  showItemsPerPageMenu.value = false;
+};
+
+const onItemsPerPageChange = ({ value }) => {
+  emit('update:itemsPerPage', value);
+  closeItemsPerPageMenu();
 };
 
 const currentPageInformation = computed(() => {
@@ -77,6 +102,32 @@ const pageInfo = computed(() => {
       <span class="min-w-0 text-sm font-normal line-clamp-1 text-n-slate-11">
         {{ currentPageInformation }}
       </span>
+      <div v-on-click-outside="closeItemsPerPageMenu" class="relative">
+        <Button
+          variant="ghost"
+          size="xs"
+          color="slate"
+          :label="itemsPerPage.toString()"
+          trailing-icon
+          icon="i-lucide-chevron-down"
+          @click="toggleItemsPerPageMenu"
+        />
+        <transition
+          enter-active-class="transition ease-out duration-100"
+          enter-from-class="transform opacity-0 scale-95"
+          enter-to-class="transform opacity-100 scale-100"
+          leave-active-class="transition ease-in duration-75"
+          leave-from-class="transform opacity-100 scale-100"
+          leave-to-class="transform opacity-0 scale-95"
+        >
+          <DropdownMenu
+            v-if="showItemsPerPageMenu"
+            :menu-items="itemsPerPageOptions"
+            class="bottom-8 ltr:left-0 rtl:right-0 mt-2"
+            @action="onItemsPerPageChange"
+          />
+        </transition>
+      </div>
     </div>
     <div class="flex items-center gap-2">
       <Button

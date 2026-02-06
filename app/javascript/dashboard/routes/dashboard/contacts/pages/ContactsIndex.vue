@@ -36,6 +36,7 @@ const meta = useMapGetter('contacts/getMeta');
 const searchQuery = computed(() => route.query?.search);
 const searchValue = ref(searchQuery.value || '');
 const pageNumber = computed(() => Number(route.query?.page) || 1);
+const itemsPerPage = computed(() => uiSettings.value?.contacts_per_page || 25);
 // For infinite scroll in search, track page internally
 const searchPageNumber = ref(1);
 const isLoadingMore = ref(false);
@@ -192,6 +193,7 @@ const getCommonFetchParams = (page = 1) => {
     sortAttr: buildSortAttr(),
     label: activeLabel.value,
     contactTag: activeTag.value,
+    perPage: itemsPerPage.value,
   };
   // #region agent log
   if (activeLabel.value) {
@@ -241,6 +243,7 @@ const fetchActiveContacts = async (page = 1) => {
   await store.dispatch('contacts/active', {
     page,
     sortAttr: buildSortAttr(),
+    perPage: itemsPerPage.value,
   });
   updatePageParam(page);
 };
@@ -336,6 +339,28 @@ const assignLabels = async labels => {
   }
 };
 
+const assignTags = async tags => {
+  if (!tags.length || !selectedContactIds.value.length) {
+    return;
+  }
+
+  isBulkActionLoading.value = true;
+  try {
+    await BulkActionsAPI.create({
+      type: 'Contact',
+      ids: selectedContactIds.value,
+      contact_tags: { add: tags },
+    });
+    useAlert(t('CONTACTS_BULK_ACTIONS.ASSIGN_TAGS_SUCCESS'));
+    clearSelection();
+    await fetchContactsBasedOnContext(pageNumber.value);
+  } catch (error) {
+    useAlert(t('CONTACTS_BULK_ACTIONS.ASSIGN_TAGS_FAILED'));
+  } finally {
+    isBulkActionLoading.value = false;
+  }
+};
+
 const deleteContacts = async () => {
   if (!selectedContactIds.value.length) {
     return;
@@ -383,6 +408,13 @@ const handleSort = async ({ sort, order }) => {
           : filterQueryGenerator(appliedFilters.value)
       )
     : fetchContacts());
+};
+
+const handleItemsPerPageChange = async itemsPerPageValue => {
+  await updateUISettings({
+    contacts_per_page: itemsPerPageValue,
+  });
+  await fetchContactsBasedOnContext(1);
 };
 
 const createContact = async contact => {
@@ -472,6 +504,7 @@ onMounted(async () => {
       :header-title="headerTitle"
       :current-page="currentPage"
       :total-items="totalItems"
+      :items-per-page="itemsPerPage"
       :show-pagination-footer="!isFetchingList && hasContacts && !isSearchView"
       :active-sort="sortState.activeSort"
       :active-ordering="sortState.activeOrdering"
@@ -483,6 +516,7 @@ onMounted(async () => {
       :has-more="hasMore"
       :is-loading-more="isLoadingMore"
       @update:current-page="fetchContactsBasedOnContext"
+      @update:items-per-page="handleItemsPerPageChange"
       @search="searchContacts"
       @update:sort="handleSort"
       @apply-filter="fetchSavedOrAppliedFilteredContact"
@@ -505,6 +539,7 @@ onMounted(async () => {
           @toggle-all="toggleSelectAll"
           @clear-selection="clearSelection"
           @assign-labels="assignLabels"
+          @assign-tags="assignTags"
           @delete-selected="openBulkDeleteDialog"
         />
         <ContactEmptyState

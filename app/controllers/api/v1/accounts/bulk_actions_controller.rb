@@ -62,7 +62,7 @@ class Api::V1::Accounts::BulkActionsController < Api::V1::Accounts::BaseControll
   def append_common_bulk_attributes(base_params)
     # NOTE: Conversation payloads historically diverged per action. Going forward we
     # want all objects to share a common contract: `{ action_name, action_attributes }`
-    common = params.permit(:type, :action_name, ids: [], labels: [add: [], remove: []])
+    common = params.permit(:type, :action_name, ids: [], labels: [add: [], remove: []], contact_tags: [add: [], remove: []])
     base_params.merge(common)
   end
 end

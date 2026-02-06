@@ -27,6 +27,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:currentPage',
+  'update:itemsPerPage',
   'update:sort',
   'search',
   'applyFilter',
@@ -65,6 +66,10 @@ const showActiveFiltersPreview = computed(() => {
 
 const updateCurrentPage = page => {
   emit('update:currentPage', page);
+};
+
+const updateItemsPerPage = itemsPerPage => {
+  emit('update:itemsPerPage', itemsPerPage);
 };
 
 const openFilter = () => {
@@ -126,6 +131,7 @@ const showPagination = computed(() => {
           :total-items="totalItems"
           :items-per-page="itemsPerPage"
           @update:current-page="updateCurrentPage"
+          @update:items-per-page="updateItemsPerPage"
         />
       </footer>
     </div>

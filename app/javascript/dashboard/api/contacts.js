@@ -6,7 +6,8 @@ export const buildContactParams = (
   sortAttr,
   label,
   search,
-  contactTag = ''
+  contactTag = '',
+  perPage = ''
 ) => {
   let params = `include_contact_inboxes=false&page=${page}&sort=${sortAttr}`;
   if (search) {
@@ -18,6 +19,9 @@ export const buildContactParams = (
   if (contactTag) {
     params = `${params}&contact_tags[]=${contactTag}`;
   }
+  if (perPage) {
+    params = `${params}&per_page=${perPage}`;
+  }
   return params;
 };
 
@@ -26,13 +30,14 @@ class ContactAPI extends ApiClient {
     super('contacts', { accountScoped: true });
   }
 
-  get(page, sortAttr = 'name', label = '', contactTag = '') {
+  get(page, sortAttr = 'name', label = '', contactTag = '', perPage = '') {
     let requestURL = `${this.url}?${buildContactParams(
       page,
       sortAttr,
       label,
       '',
-      contactTag
+      contactTag,
+      perPage
     )}`;
     return axios.get(requestURL);
   }
@@ -67,24 +72,46 @@ class ContactAPI extends ApiClient {
     return axios.post(`${this.url}/${contactId}/labels`, { labels });
   }
 
-  search(search = '', page = 1, sortAttr = 'name', label = '') {
+  search(
+    search = '',
+    page = 1,
+    sortAttr = 'name',
+    label = '',
+    perPage = ''
+  ) {
     let requestURL = `${this.url}/search?${buildContactParams(
       page,
       sortAttr,
       label,
-      search
+      search,
+      '',
+      perPage
     )}`;
     return axios.get(requestURL);
   }
 
-  active(page = 1, sortAttr = 'name') {
-    let requestURL = `${this.url}/active?${buildContactParams(page, sortAttr)}`;
+  active(page = 1, sortAttr = 'name', perPage = '') {
+    let requestURL = `${this.url}/active?${buildContactParams(
+      page,
+      sortAttr,
+      '',
+      '',
+      '',
+      perPage
+    )}`;
     return axios.get(requestURL);
   }
 
   // eslint-disable-next-line default-param-last
-  filter(page = 1, sortAttr = 'name', queryPayload) {
-    let requestURL = `${this.url}/filter?${buildContactParams(page, sortAttr)}`;
+  filter(page = 1, sortAttr = 'name', queryPayload, perPage = '') {
+    let requestURL = `${this.url}/filter?${buildContactParams(
+      page,
+      sortAttr,
+      '',
+      '',
+      '',
+      perPage
+    )}`;
     return axios.post(requestURL, queryPayload);
   }
 
