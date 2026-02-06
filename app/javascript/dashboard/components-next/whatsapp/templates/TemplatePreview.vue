@@ -14,10 +14,13 @@ const { t } = useI18n();
 
 const processedBody = computed(() => {
   if (!props.body) return '';
-  return props.body.replace(
+  let body = props.body.replace(
     /\{\{([^}]+)\}\}/g,
     '<span class="px-1 rounded bg-n-amber-3 text-n-amber-11 font-medium">[$1]</span>'
   );
+  // Handle bold (*text*)
+  body = body.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+  return body;
 });
 
 const processedHeader = computed(() => {

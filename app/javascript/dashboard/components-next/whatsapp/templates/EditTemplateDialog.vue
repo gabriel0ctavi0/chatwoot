@@ -29,6 +29,7 @@ const headerVideoUrl = ref('');
 const headerDocumentName = ref('');
 const footerText = ref('');
 const buttons = ref([]);
+const bodyTextarea = ref(null);
 
 const isUpdating = computed(
   () => store.getters['whatsappTemplates/getUIFlags'].isUpdating
@@ -172,6 +173,26 @@ const handleSubmit = async () => {
     useAlert(t('WHATSAPP_TEMPLATES_MGMT.EDIT.API.ERROR_MESSAGE'));
   }
 };
+
+const insertBold = () => {
+  const textarea = bodyTextarea.value;
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = body.value;
+  const selectedText = text.substring(start, end);
+  const before = text.substring(0, start);
+  const after = text.substring(end);
+
+  body.value = `${before}*${selectedText}*${after}`;
+
+  textarea.focus();
+  const newCursorPos = start + 1 + selectedText.length + 1;
+  setTimeout(() => {
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+  }, 0);
+};
 </script>
 
 <template>
@@ -294,16 +315,26 @@ const handleSubmit = async () => {
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-n-slate-12">
-              {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.LABEL') }}
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.LABEL') }}
+              </label>
+              <Button
+                size="xs"
+                variant="ghost"
+                color="slate"
+                icon="i-lucide-bold"
+                @click="insertBold"
+              />
+            </div>
             <textarea
+              ref="bodyTextarea"
               :value="body"
               :placeholder="
                 t('WHATSAPP_TEMPLATES_MGMT.CREATE.FORM.BODY.PLACEHOLDER')
               "
-              rows="10"
-              class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand resize-none"
+              rows="12"
+              class="w-full rounded-lg bg-n-solid-3 px-3 py-2 text-sm text-n-slate-12 outline outline-n-weak placeholder:text-n-slate-9 focus:outline-n-brand resize-y min-h-[150px]"
               @input="body = $event.target.value"
             />
             <span class="text-xs text-n-slate-10">
