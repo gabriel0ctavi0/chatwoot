@@ -10,10 +10,12 @@ class Contacts::BulkAssignTagsService
 
     contacts = @account.contacts.where(id: @contact_ids)
 
-    contacts.find_each do |contact|
+    contacts.each do |contact|
       contact.add_contact_tags(@tags)
     end
 
+    # Explicitly clear cache or reload if needed, but usually save! inside add_contact_tags handles it.
+    # We return the IDs to confirm which were processed.
     { success: true, updated_contact_ids: contacts.pluck(:id) }
   end
 end
