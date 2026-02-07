@@ -202,11 +202,9 @@ class Contact < ApplicationRecord
   def add_contact_tags(new_tags = nil)
     return if new_tags.blank?
 
-    # Use tag_list style addition to ensure it works with ActsAsTaggableOn properly
-    # combined = contact_tag_list + Array(new_tags)
-    # update!(contact_tag_list: combined)
-    self.contact_tag_list.add(new_tags)
-    save!
+    new_tags = Array(new_tags)
+    combined = contact_tag_list + new_tags
+    update!(contact_tag_list: combined)
   end
 
   private

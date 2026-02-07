@@ -28,6 +28,7 @@ class Label < ApplicationRecord
             uniqueness: { scope: :account_id }
 
   after_update_commit :update_associated_models
+  after_destroy :remove_label_from_tagged_records
   default_scope { order(:title) }
 
   before_validation do
@@ -52,5 +53,12 @@ class Label < ApplicationRecord
     return unless title_previously_changed?
 
     Labels::UpdateJob.perform_later(title, title_previously_was, account_id)
+  end
+
+  def remove_label_from_tagged_records
+    tag = ActsAsTaggableOn::Tag.find_by(name: title)
+    return unless tag
+
+    ActsAsTaggableOn::Tagging.where(tag_id: tag.id, context: 'labels').destroy_all
   end
 end

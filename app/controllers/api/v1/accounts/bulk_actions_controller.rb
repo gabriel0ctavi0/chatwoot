@@ -56,13 +56,14 @@ class Api::V1::Accounts::BulkActionsController < Api::V1::Accounts::BaseControll
   def contact_params
     # TODO: remove this method in favor of a common params method.
     # once legacy conversation payloads are migrated.
-    append_common_bulk_attributes({})
+    # Deep convert to plain Hash so ActiveJob can serialize reliably
+    append_common_bulk_attributes({}).deep_symbolize_keys
   end
 
   def append_common_bulk_attributes(base_params)
     # NOTE: Conversation payloads historically diverged per action. Going forward we
     # want all objects to share a common contract: `{ action_name, action_attributes }`
     common = params.permit(:type, :action_name, ids: [], labels: [add: [], remove: []], contact_tags: [add: [], remove: []])
-    base_params.merge(common)
+    base_params.merge(common.to_h)
   end
 end
