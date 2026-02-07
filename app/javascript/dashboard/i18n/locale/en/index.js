@@ -26,6 +26,7 @@ import integrationApps from './integrationApps.json';
 import integrations from './integrations.json';
 import labelsMgmt from './labelsMgmt.json';
 import tagMgmt from './tagMgmt.json';
+import funnelMgmt from './funnelMgmt.json';
 import login from './login.json';
 import macros from './macros.json';
 import report from './report.json';
@@ -71,6 +72,7 @@ export default {
   ...integrations,
   ...labelsMgmt,
   ...tagMgmt,
+  ...funnelMgmt,
   ...login,
   ...macros,
   ...report,

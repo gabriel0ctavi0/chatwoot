@@ -332,6 +332,8 @@
     "APPLICATIONS": "Applications",
     "LABELS": "Labels",
     "TAGS": "Tags",
+    "FUNNELS": "Funnels",
+    "FUNNELS_VIEW": "Funnels",
     "CUSTOM_ATTRIBUTES": "Custom Attributes",
     "AUTOMATION": "Automation",
     "MACROS": "Macros",

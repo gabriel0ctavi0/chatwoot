@@ -66,7 +66,15 @@ export default {
       currentChat: 'getSelectedChat',
       currentUser: 'getCurrentUser',
       teams: 'teams/getTeams',
+      funnels: 'funnels/getFunnels',
     }),
+    funnelOptions() {
+      const none = {
+        id: null,
+        name: this.$t('FUNNEL_MGMT.CONVERSATION.NONE'),
+      };
+      return [none, ...this.funnels];
+    },
     hasAnAssignedTeam() {
       return !!this.currentChat?.meta?.team;
     },
@@ -145,6 +153,30 @@ export default {
           });
       },
     },
+    assignedFunnel: {
+      get() {
+        const contact = this.currentChat?.meta?.sender;
+        if (!contact || !contact.funnel_id) return this.funnelOptions[0];
+        const found = this.funnelOptions.find(
+          opt => opt.id === contact.funnel_id
+        );
+        return found || this.funnelOptions[0];
+      },
+      set(funnelItem) {
+        const contact = this.currentChat?.meta?.sender;
+        if (!contact) return;
+        const funnelId = funnelItem ? funnelItem.id : null;
+        const payload = { id: contact.id, funnel_id: funnelId };
+        if (funnelId) {
+          payload.funnel_stage = 'conversando';
+        } else {
+          payload.funnel_stage = null;
+        }
+        this.$store.dispatch('contacts/update', payload).then(() => {
+          useAlert(this.$t('FUNNEL_MGMT.CONVERSATION.CHANGE_SUCCESS'));
+        });
+      },
+    },
     showSelfAssign() {
       if (!this.assignedAgent) {
         return true;
@@ -201,6 +233,13 @@ export default {
         this.assignedPriority.id === selectedPriorityItem.id;
 
       this.assignedPriority = isSamePriority ? null : selectedPriorityItem;
+    },
+    onClickAssignFunnel(selectedFunnelItem) {
+      const isSameFunnel =
+        this.assignedFunnel &&
+        this.assignedFunnel.id === selectedFunnelItem.id;
+
+      this.assignedFunnel = isSameFunnel ? null : selectedFunnelItem;
     },
   },
 };
@@ -274,6 +313,18 @@ export default {
           $t('CONVERSATION.PRIORITY.CHANGE_PRIORITY.INPUT_PLACEHOLDER')
         "
         @select="onClickAssignPriority"
+      />
+    </div>
+    <div class="multiselect-wrap--small">
+      <ContactDetailsItem compact :title="$t('FUNNEL_MGMT.CONVERSATION.TITLE')" />
+      <MultiselectDropdown
+        :options="funnelOptions"
+        :selected-item="assignedFunnel"
+        :multiselector-title="$t('FUNNEL_MGMT.CONVERSATION.TITLE')"
+        :multiselector-placeholder="$t('FUNNEL_MGMT.CONVERSATION.SELECT_PLACEHOLDER')"
+        :no-search-result="$t('FUNNEL_MGMT.CONVERSATION.NO_RESULTS')"
+        :input-placeholder="$t('FUNNEL_MGMT.CONVERSATION.INPUT_PLACEHOLDER')"
+        @select="onClickAssignFunnel"
       />
     </div>
     <ContactDetailsItem

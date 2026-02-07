@@ -244,7 +244,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def permitted_params
-    params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url,
+    params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url, :funnel_id, :funnel_stage,
                   additional_attributes: {}, custom_attributes: {}, label_list: [], contact_tag_list: [])
   end
 

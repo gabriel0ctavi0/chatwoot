@@ -58,6 +58,7 @@ class Contact < ApplicationRecord
             format: { with: /\+[1-9]\d{1,14}\z/, message: I18n.t('errors.contacts.phone_number.invalid') }
 
   belongs_to :account
+  belongs_to :funnel, optional: true
   has_many :conversations, dependent: :destroy_async
   has_many :contact_inboxes, dependent: :destroy_async
   has_many :csat_survey_responses, dependent: :destroy_async
@@ -71,6 +72,7 @@ class Contact < ApplicationRecord
   before_save :sync_contact_attributes
 
   enum contact_type: { visitor: 0, lead: 1, customer: 2 }
+  enum funnel_stage: { conversando: 0, interessado: 1, em_fechamento: 2, concluido: 3 }
 
   scope :order_on_last_activity_at, lambda { |direction|
     order(

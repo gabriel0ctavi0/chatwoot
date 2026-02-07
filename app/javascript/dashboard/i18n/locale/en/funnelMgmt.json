@@ -1,0 +1,70 @@
+{
+  "FUNNEL_MGMT": {
+    "HEADER": "Funnels",
+    "HEADER_BTN_TXT": "Add funnel",
+    "LOADING": "Fetching funnels",
+    "DESCRIPTION": "Funnels help you track contacts through sales stages. Create funnels and assign contacts from the conversation sidebar.",
+    "LIST": {
+      "404": "There are no funnels available in this account.",
+      "TABLE_HEADER": {
+        "NAME": "Name"
+      }
+    },
+    "FORM": {
+      "NAME": {
+        "LABEL": "Funnel Name",
+        "PLACEHOLDER": "Enter funnel name"
+      },
+      "EDIT": "Edit",
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete",
+      "CANCEL": "Cancel"
+    },
+    "ADD": {
+      "TITLE": "Add funnel",
+      "DESC": "Funnels let you track contacts through different stages.",
+      "API": {
+        "SUCCESS_MESSAGE": "Funnel added successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      }
+    },
+    "EDIT": {
+      "TITLE": "Edit funnel",
+      "API": {
+        "SUCCESS_MESSAGE": "Funnel updated successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      }
+    },
+    "DELETE": {
+      "API": {
+        "SUCCESS_MESSAGE": "Funnel deleted successfully",
+        "ERROR_MESSAGE": "There was an error, please try again"
+      },
+      "CONFIRM": {
+        "TITLE": "Confirm Deletion",
+        "MESSAGE": "Are you sure to delete ",
+        "YES": "Yes, Delete ",
+        "NO": "No, Keep "
+      }
+    },
+    "STAGES": {
+      "CONVERSANDO": "Conversando",
+      "INTERESSADO": "Interessado",
+      "EM_FECHAMENTO": "Em Fechamento",
+      "CONCLUIDO": "Concluído"
+    },
+    "KANBAN": {
+      "TITLE": "Funnels",
+      "NO_FUNNELS": "No funnels created yet. Go to Settings to create one."
+    },
+    "CONVERSATION": {
+      "TITLE": "Funnel",
+      "NONE": "None",
+      "SELECT_PLACEHOLDER": "Select a funnel",
+      "NO_RESULTS": "No funnels found",
+      "INPUT_PLACEHOLDER": "Search funnel",
+      "CHANGE_SUCCESS": "Funnel assigned successfully"
+    }
+  }
+}

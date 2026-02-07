@@ -8,8 +8,8 @@ import { routes as inboxRoutes } from './inbox/routes';
 import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
 import campaignsRoutes from './campaigns/campaigns.routes';
-import { routes as captainRoutes } from './captain/captain.routes';
 import { routes as templatesRoutes } from './templates/routes';
+import { routes as funnelRoutes } from './funnels/funnels.routes';
 import AppContainer from './Dashboard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
@@ -20,7 +20,6 @@ export default {
       path: frontendURL('accounts/:accountId'),
       component: AppContainer,
       children: [
-        ...captainRoutes,
         ...inboxRoutes,
         ...conversation.routes,
         ...settings.routes,
@@ -31,6 +30,7 @@ export default {
         ...helpcenterRoutes.routes,
         ...campaignsRoutes.routes,
         ...templatesRoutes,
+        ...funnelRoutes,
       ],
     },
     {

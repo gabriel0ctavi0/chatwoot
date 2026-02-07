@@ -241,6 +241,13 @@ Rails.application.routes.draw do
           resources :labels, only: [:index, :show, :create, :update, :destroy]
           resources :contact_tags, only: [:index, :show, :create, :update, :destroy]
 
+          resources :funnels, only: [:index, :show, :create, :update, :destroy] do
+            member do
+              get :contacts
+              patch :move_contact
+            end
+          end
+
           resources :notifications, only: [:index, :update, :destroy] do
             collection do
               post :read_all

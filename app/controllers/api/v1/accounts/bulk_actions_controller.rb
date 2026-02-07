@@ -28,7 +28,7 @@ class Api::V1::Accounts::BulkActionsController < Api::V1::Accounts::BaseControll
   end
 
   def enqueue_contact_job
-    Contacts::BulkActionJob.perform_later(
+    Contacts::BulkActionJob.perform_now(
       @current_account.id,
       current_user.id,
       contact_params
