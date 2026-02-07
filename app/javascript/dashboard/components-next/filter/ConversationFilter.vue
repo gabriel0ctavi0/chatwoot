@@ -33,7 +33,7 @@ const filters = defineModel({
 const folderNameLocal = ref(props.folderName);
 
 const DEFAULT_FILTER = {
-  attributeKey: 'status',
+  attributeKey: 'priority',
   filterOperator: 'equal_to',
   values: [],
   queryOperator: 'and',

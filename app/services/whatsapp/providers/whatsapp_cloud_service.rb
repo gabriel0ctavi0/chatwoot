@@ -79,7 +79,60 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     "#{api_base_path}/v13.0/#{media_id}"
   end
 
+  # Upload media from a URL to WhatsApp's Media API and return the media_id.
+  # This avoids requiring the Chatwoot server to be publicly accessible.
+  def upload_media_from_url(url, content_type)
+    file_data = download_file(url)
+    return nil if file_data.blank?
+
+    tempfile = Tempfile.new(['whatsapp_media', extension_for(content_type)], binmode: true)
+    tempfile.write(file_data)
+    tempfile.rewind
+
+    response = HTTParty.post(
+      "#{phone_id_path}/media",
+      headers: { 'Authorization' => "Bearer #{whatsapp_channel.provider_config['api_key']}" },
+      multipart: true,
+      body: {
+        messaging_product: 'whatsapp',
+        type: content_type,
+        file: tempfile
+      }
+    )
+
+    response.success? ? response['id'] : nil
+  rescue StandardError => e
+    Rails.logger.error "[WhatsApp CloudService] upload_media_from_url failed: #{e.message}"
+    nil
+  ensure
+    tempfile&.close
+    tempfile&.unlink
+  end
+
   private
+
+  def download_file(url)
+    uri = URI.parse(url)
+    response = Net::HTTP.get_response(uri)
+    # Follow redirects (Active Storage uses redirect URLs)
+    if response.is_a?(Net::HTTPRedirection)
+      response = Net::HTTP.get_response(URI.parse(response['location']))
+    end
+    response.is_a?(Net::HTTPSuccess) ? response.body : nil
+  rescue StandardError => e
+    Rails.logger.error "[WhatsApp CloudService] download_file failed: #{e.message}"
+    nil
+  end
+
+  def extension_for(content_type)
+    case content_type
+    when 'image/jpeg' then '.jpg'
+    when 'image/png' then '.png'
+    when 'video/mp4' then '.mp4'
+    when 'application/pdf' then '.pdf'
+    else ''
+    end
+  end
 
   def csat_template_service
     @csat_template_service ||= Whatsapp::CsatTemplateService.new(whatsapp_channel)
