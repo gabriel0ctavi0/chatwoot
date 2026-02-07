@@ -565,6 +565,9 @@ function onToggleAdvanceFiltersModal() {
     initalizeAppliedFiltersToModal();
   }
 
+  // #region agent log
+  console.error('[DEBUG-FILTER] appliedFilter before render', JSON.parse(JSON.stringify(appliedFilter.value)), { hasAppliedFilters: hasAppliedFilters.value, hasActiveFolders: hasActiveFolders.value, activeStatus: activeStatus.value });
+  // #endregion
   showAdvancedFilters.value = true;
 }
 
