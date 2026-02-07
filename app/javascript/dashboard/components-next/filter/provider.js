@@ -59,6 +59,7 @@ export function useConversationFilterContext() {
   const inboxes = useMapGetter('inboxes/getInboxes');
   const teams = useMapGetter('teams/getTeams');
   const campaigns = useMapGetter('campaigns/getAllCampaigns');
+  const funnels = useMapGetter('funnels/getFunnels');
 
   const {
     equalityOperators,
@@ -83,22 +84,6 @@ export function useConversationFilterContext() {
    * @type {import('vue').ComputedRef<FilterType[]>}
    */
   const filterTypes = computed(() => [
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
-      value: CONVERSATION_ATTRIBUTES.STATUS,
-      attributeName: t('FILTER.ATTRIBUTES.STATUS'),
-      label: t('FILTER.ATTRIBUTES.STATUS'),
-      inputType: 'multiSelect',
-      options: ['open', 'resolved', 'pending', 'snoozed', 'all'].map(id => {
-        return {
-          id,
-          name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
-        };
-      }),
-      dataType: 'text',
-      filterOperators: equalityOperators.value,
-      attributeModel: 'standard',
-    },
     {
       attributeKey: CONVERSATION_ATTRIBUTES.PRIORITY,
       value: CONVERSATION_ATTRIBUTES.PRIORITY,
@@ -245,6 +230,36 @@ export function useConversationFilterContext() {
       inputType: 'date',
       dataType: 'text',
       filterOperators: dateOperators.value,
+      attributeModel: 'standard',
+    },
+    {
+      attributeKey: CONVERSATION_ATTRIBUTES.FUNNEL_ID,
+      value: CONVERSATION_ATTRIBUTES.FUNNEL_ID,
+      attributeName: t('FILTER.ATTRIBUTES.FUNNEL'),
+      label: t('FILTER.ATTRIBUTES.FUNNEL'),
+      inputType: 'searchSelect',
+      options: funnels.value.map(funnel => ({
+        id: funnel.id,
+        name: funnel.name,
+      })),
+      dataType: 'number',
+      filterOperators: presenceOperators.value,
+      attributeModel: 'standard',
+    },
+    {
+      attributeKey: CONVERSATION_ATTRIBUTES.FUNNEL_STAGE,
+      value: CONVERSATION_ATTRIBUTES.FUNNEL_STAGE,
+      attributeName: t('FILTER.ATTRIBUTES.FUNNEL_STAGE'),
+      label: t('FILTER.ATTRIBUTES.FUNNEL_STAGE'),
+      inputType: 'multiSelect',
+      options: [
+        { id: 'conversando', name: t('FILTER.FUNNEL_STAGES.CONVERSANDO') },
+        { id: 'interessado', name: t('FILTER.FUNNEL_STAGES.INTERESSADO') },
+        { id: 'em_fechamento', name: t('FILTER.FUNNEL_STAGES.EM_FECHAMENTO') },
+        { id: 'concluido', name: t('FILTER.FUNNEL_STAGES.CONCLUIDO') },
+      ],
+      dataType: 'text',
+      filterOperators: equalityOperators.value,
       attributeModel: 'standard',
     },
     ...customFilterTypes.value,

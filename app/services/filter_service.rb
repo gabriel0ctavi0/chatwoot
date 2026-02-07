@@ -51,12 +51,17 @@ class FilterService
     return message_type_values(values) if attribute_key == 'message_type'
     return downcase_array_values(values) if attribute_key == 'content'
     return label_filter_values(values) if attribute_key == 'labels'
+    return funnel_stage_values(values) if attribute_key == 'funnel_stage'
 
     case_insensitive_values(query_hash)
   end
 
   def label_filter_values(values)
     Array(values).map { |v| v.to_s.strip.downcase.presence }.compact.uniq
+  end
+
+  def funnel_stage_values(values)
+    values.map { |x| Contact.funnel_stages[x.to_sym] }.compact
   end
 
   def downcase_array_values(values)

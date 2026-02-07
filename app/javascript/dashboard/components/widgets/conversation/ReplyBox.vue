@@ -136,6 +136,8 @@ export default {
       newConversationModalActive: false,
       showArticleSearchPopover: false,
       hasRecordedAudio: false,
+      showCannedResponsesPopover: false,
+      cannedResponseSearchKey: '',
     };
   },
   computed: {
@@ -147,6 +149,7 @@ export default {
       globalConfig: 'globalConfig/get',
       accountId: 'getCurrentAccountId',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
+      cannedMessages: 'getCannedResponses',
     }),
     currentContact() {
       const senderId = this.currentChat?.meta?.sender?.id;
@@ -1105,6 +1108,21 @@ export default {
     toggleInsertArticle() {
       this.showArticleSearchPopover = !this.showArticleSearchPopover;
     },
+    toggleCannedResponsesPopover() {
+      this.showCannedResponsesPopover = !this.showCannedResponsesPopover;
+      if (this.showCannedResponsesPopover) {
+        this.cannedResponseSearchKey = '';
+        this.$store.dispatch('getCannedResponse', { searchKey: '' });
+      }
+    },
+    onCannedResponseSearch(searchKey) {
+      this.cannedResponseSearchKey = searchKey;
+      this.$store.dispatch('getCannedResponse', { searchKey });
+    },
+    onSelectCannedResponse(content) {
+      this.showCannedResponsesPopover = false;
+      this.replaceText(content);
+    },
     resetAudioRecorderInput() {
       this.recordingAudioDurationText = '00:00';
       this.isRecordingAudio = false;
@@ -1246,16 +1264,48 @@ export default {
             @remove-attachment="removeAttachment"
           />
         </div>
-        <MessageSignatureMissingAlert
-          v-if="
-            isSignatureEnabledForInbox &&
-            !isSignatureAvailable &&
-            isDefaultEditorMode
-          "
-          class="mb-2"
-        />
       </div>
     </Transition>
+
+    <div
+      v-if="showCannedResponsesPopover"
+      class="absolute bottom-full left-0 z-50 w-full mb-1"
+    >
+      <div
+        class="mx-2 rounded-xl border border-n-weak bg-n-solid-1 shadow-lg max-h-64 overflow-hidden flex flex-col"
+      >
+        <div class="p-2 border-b border-n-weak">
+          <input
+            v-model="cannedResponseSearchKey"
+            type="text"
+            :placeholder="$t('CONVERSATION.FOOTER.CANNED_RESPONSES_SEARCH')"
+            class="w-full h-8 px-2 text-sm bg-transparent border-0 outline-none text-n-slate-12 placeholder-n-slate-11"
+            @input="onCannedResponseSearch(cannedResponseSearchKey)"
+          />
+        </div>
+        <div class="overflow-y-auto max-h-52">
+          <button
+            v-for="response in cannedMessages"
+            :key="response.id"
+            class="flex flex-col w-full gap-0.5 px-3 py-2 text-left cursor-pointer hover:bg-n-alpha-2 dark:hover:bg-n-solid-2"
+            @click="onSelectCannedResponse(response.content)"
+          >
+            <span class="text-xs font-medium text-n-slate-11">
+              /{{ response.short_code }}
+            </span>
+            <span class="text-sm text-n-slate-12 line-clamp-1">
+              {{ response.content }}
+            </span>
+          </button>
+          <div
+            v-if="!cannedMessages.length"
+            class="p-4 text-sm text-center text-n-slate-11"
+          >
+            {{ $t('CONVERSATION.FOOTER.NO_CANNED_RESPONSES') }}
+          </div>
+        </div>
+      </div>
+    </div>
 
     <Transition
       mode="out-in"
@@ -1307,6 +1357,7 @@ export default {
         @replace-text="replaceText"
         @toggle-insert-article="toggleInsertArticle"
         @toggle-quoted-reply="toggleQuotedReply"
+        @toggle-canned-responses="toggleCannedResponsesPopover"
       />
     </Transition>
 

@@ -96,7 +96,7 @@ const conversationDynamicScroller = ref(null);
 provide('contextMenuElementTarget', conversationDynamicScroller);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ALL);
-const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
+const activeStatus = ref('all');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -371,7 +371,7 @@ const uniqueInboxes = computed(() => {
 function setFiltersFromUISettings() {
   const { conversations_filter_by: filterBy = {} } = uiSettings.value;
   const { status, order_by: orderBy } = filterBy;
-  activeStatus.value = status || wootConstants.STATUS_TYPE.OPEN;
+  activeStatus.value = status || 'all';
   activeSortBy.value = Object.values(wootConstants.SORT_BY_TYPE).includes(
     orderBy
   )
@@ -948,12 +948,8 @@ watch(conversationFilters, (newVal, oldVal) => {
       :conversations="selectedConversations"
       :all-conversations-selected="allConversationsSelected"
       :selected-inboxes="uniqueInboxes"
-      :show-open-action="allSelectedConversationsStatus('open')"
-      :show-resolved-action="allSelectedConversationsStatus('resolved')"
-      :show-snoozed-action="allSelectedConversationsStatus('snoozed')"
       @select-all-conversations="toggleSelectAll"
       @assign-agent="onAssignAgent"
-      @update-conversations="onUpdateConversations"
       @assign-labels="onAssignLabels"
       @assign-team="onAssignTeamsForBulk"
     />

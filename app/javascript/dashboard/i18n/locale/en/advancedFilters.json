@@ -62,7 +62,15 @@
       "CUSTOM_ATTRIBUTE_LINK": "Link",
       "CUSTOM_ATTRIBUTE_CHECKBOX": "Checkbox",
       "CREATED_AT": "Created at",
-      "LAST_ACTIVITY": "Last activity"
+      "LAST_ACTIVITY": "Last activity",
+      "FUNNEL": "Funnel",
+      "FUNNEL_STAGE": "Funnel Stage"
+    },
+    "FUNNEL_STAGES": {
+      "CONVERSANDO": "Conversando",
+      "INTERESSADO": "Interessado",
+      "EM_FECHAMENTO": "Em Fechamento",
+      "CONCLUIDO": "Concluído"
     },
     "ERRORS": {
       "VALUE_REQUIRED": "Value is required",

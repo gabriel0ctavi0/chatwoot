@@ -34,12 +34,25 @@
       },
       "all": {
         "TEXT": "All"
+      },
+      "conversando": {
+        "TEXT": "Conversando"
+      },
+      "interessado": {
+        "TEXT": "Interessado"
+      },
+      "em_fechamento": {
+        "TEXT": "Em Fechamento"
+      },
+      "concluido": {
+        "TEXT": "Concluído"
       }
     },
     "VIEW_FILTER": "View",
     "SORT_TOOLTIP_LABEL": "Sort conversations",
     "CHAT_SORT": {
       "STATUS": "Status",
+      "STAGE": "Stage",
       "ORDER_BY": "Order by"
     },
     "CHAT_TIME_STAMP": {

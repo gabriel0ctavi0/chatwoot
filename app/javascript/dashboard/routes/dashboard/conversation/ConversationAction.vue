@@ -173,6 +173,12 @@ export default {
           payload.funnel_stage = null;
         }
         this.$store.dispatch('contacts/update', payload).then(() => {
+          this.$store.dispatch('updateConversationContact', {
+            conversationId: this.currentChat.id,
+            ...contact,
+            funnel_id: funnelId,
+            funnel_stage: payload.funnel_stage,
+          });
           useAlert(this.$t('FUNNEL_MGMT.CONVERSATION.CHANGE_SUCCESS'));
         });
       },

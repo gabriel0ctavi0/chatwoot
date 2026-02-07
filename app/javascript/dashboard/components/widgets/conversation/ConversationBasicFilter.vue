@@ -29,7 +29,7 @@ const chatSortFilter = useMapGetter('getChatSortFilter');
 const [showActionsDropdown, toggleDropdown] = useToggle();
 
 const currentStatusFilter = computed(() => {
-  return chatStatusFilter.value || wootConstants.STATUS_TYPE.OPEN;
+  return chatStatusFilter.value || 'all';
 });
 
 const currentSortBy = computed(() => {
@@ -40,20 +40,20 @@ const currentSortBy = computed(() => {
 
 const chatStatusOptions = computed(() => [
   {
-    label: t('CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.open.TEXT'),
-    value: 'open',
+    label: t('FILTER.FUNNEL_STAGES.CONVERSANDO'),
+    value: 'conversando',
   },
   {
-    label: t('CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.resolved.TEXT'),
-    value: 'resolved',
+    label: t('FILTER.FUNNEL_STAGES.INTERESSADO'),
+    value: 'interessado',
   },
   {
-    label: t('CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.pending.TEXT'),
-    value: 'pending',
+    label: t('FILTER.FUNNEL_STAGES.EM_FECHAMENTO'),
+    value: 'em_fechamento',
   },
   {
-    label: t('CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.snoozed.TEXT'),
-    value: 'snoozed',
+    label: t('FILTER.FUNNEL_STAGES.CONCLUIDO'),
+    value: 'concluido',
   },
   {
     label: t('CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.all.TEXT'),
@@ -151,7 +151,7 @@ const handleSortChange = value => {
     >
       <div class="flex items-center justify-between last:mt-4 gap-2">
         <span class="text-sm truncate text-n-slate-12">
-          {{ $t('CHAT_LIST.CHAT_SORT.STATUS') }}
+          {{ $t('CHAT_LIST.CHAT_SORT.STAGE') }}
         </span>
         <SelectMenu
           :model-value="chatStatusFilter"

@@ -293,24 +293,6 @@ export default {
       />
       <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
     </template>
-    <template v-if="isAllowed([MENU.STATUS, MENU.SNOOZE])">
-      <template v-for="option in statusMenuConfig">
-        <MenuItem
-          v-if="show(option.key) && isAllowed([MENU.STATUS])"
-          :key="option.key"
-          :option="option"
-          variant="icon"
-          @click.stop="toggleStatus(option.key, null)"
-        />
-      </template>
-      <MenuItem
-        v-if="showSnooze && isAllowed([MENU.SNOOZE])"
-        :option="snoozeOption"
-        variant="icon"
-        @click.stop="snoozeConversation()"
-      />
-      <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
-    </template>
     <template
       v-if="isAllowed([MENU.PRIORITY, MENU.LABEL, MENU.AGENT, MENU.TEAM])"
     >

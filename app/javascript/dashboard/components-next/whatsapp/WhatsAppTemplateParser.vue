@@ -89,10 +89,6 @@ const renderedTemplate = computed(() => {
 const isFormInvalid = computed(() => {
   if (!hasVariables.value && !hasMediaHeader.value) return false;
 
-  if (hasMediaHeader.value && !processedParams.value.header?.media_url) {
-    return true;
-  }
-
   if (hasVariables.value && processedParams.value.body) {
     const hasEmptyBodyVariable = Object.values(processedParams.value.body).some(
       value => !value

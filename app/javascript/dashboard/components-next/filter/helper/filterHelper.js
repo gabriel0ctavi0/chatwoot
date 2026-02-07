@@ -14,6 +14,8 @@ export const CONVERSATION_ATTRIBUTES = {
   REFERER: 'referer',
   CREATED_AT: 'created_at',
   LAST_ACTIVITY_AT: 'last_activity_at',
+  FUNNEL_ID: 'funnel_id',
+  FUNNEL_STAGE: 'funnel_stage',
 };
 
 export const CONTACT_ATTRIBUTES = {

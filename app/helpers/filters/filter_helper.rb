@@ -35,6 +35,8 @@ module Filters::FilterHelper
     case current_filter['attribute_type']
     when 'additional_attributes'
       handle_additional_attributes(query_hash, filter_operator_value, current_filter['data_type'])
+    when 'contact_attribute'
+      handle_contact_attributes(query_hash, filter_operator_value)
     else
       handle_standard_attributes(current_filter, query_hash, current_index, filter_operator_value)
     end
@@ -43,6 +45,13 @@ module Filters::FilterHelper
   def handle_nil_filter(query_hash, current_index)
     attribute_type = "#{filter_config[:entity].downcase}_attribute"
     custom_attribute_query(query_hash, attribute_type, current_index)
+  end
+
+  def handle_contact_attributes(query_hash, filter_operator_value)
+    attribute_key = query_hash[:attribute_key]
+    query_operator = query_hash[:query_operator]
+    "#{filter_config[:table_name]}.contact_id IN " \
+      "(SELECT contacts.id FROM contacts WHERE contacts.#{attribute_key} #{filter_operator_value}) #{query_operator}"
   end
 
   def handle_additional_attributes(query_hash, filter_operator_value, data_type)

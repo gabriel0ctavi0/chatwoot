@@ -1,6 +1,5 @@
 <script>
 import { ref } from 'vue';
-import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 import FileUpload from 'vue-upload-component';
 import * as ActiveStorage from 'activestorage';
@@ -129,20 +128,14 @@ export default {
     'selectWhatsappTemplate',
     'selectContentTemplate',
     'toggleQuotedReply',
+    'toggleCannedResponses',
   ],
   setup() {
-    const { setSignatureFlagForInbox, fetchSignatureFlagFromUISettings } =
-      useUISettings();
-
     const uploadRef = ref(false);
 
     const keyboardEvents = {
       '$mod+Alt+KeyA': {
         action: () => {
-          // TODO: This is really hacky, we need to replace the file picker component with
-          // a custom one, where the logic and the component markup is isolated.
-          // Once we have the custom component, we can remove the hacky logic below.
-
           const uploadTriggerButton = document.querySelector(
             '#conversationAttachment'
           );
@@ -155,8 +148,6 @@ export default {
     useKeyboardEvents(keyboardEvents);
 
     return {
-      setSignatureFlagForInbox,
-      fetchSignatureFlagFromUISettings,
       uploadRef,
     };
   },
@@ -235,17 +226,8 @@ export default {
           return 'i-ph-stop';
       }
     },
-    showMessageSignatureButton() {
+    showCannedResponsesButton() {
       return !this.isOnPrivateNote;
-    },
-    sendWithSignature() {
-      // channelType is sourced from inboxMixin
-      return this.fetchSignatureFlagFromUISettings(this.channelType);
-    },
-    signatureToggleTooltip() {
-      return this.sendWithSignature
-        ? this.$t('CONVERSATION.FOOTER.DISABLE_SIGN_TOOLTIP')
-        : this.$t('CONVERSATION.FOOTER.ENABLE_SIGN_TOOLTIP');
     },
     enableInsertArticleInReply() {
       return this.portalSlug;
@@ -263,9 +245,6 @@ export default {
     ActiveStorage.start();
   },
   methods: {
-    toggleMessageSignature() {
-      this.setSignatureFlagForInbox(this.channelType, !this.sendWithSignature);
-    },
     replaceText(text) {
       this.$emit('replaceText', text);
     },
@@ -330,13 +309,13 @@ export default {
         @click="toggleAudioRecorderPlayPause"
       />
       <NextButton
-        v-if="showMessageSignatureButton"
-        v-tooltip.top-end="signatureToggleTooltip"
-        icon="i-ph-signature"
+        v-if="showCannedResponsesButton"
+        v-tooltip.top-end="$t('CONVERSATION.FOOTER.CANNED_RESPONSES')"
+        icon="i-ph-lightning"
         slate
         faded
         sm
-        @click="toggleMessageSignature"
+        @click="$emit('toggleCannedResponses')"
       />
       <NextButton
         v-if="showQuotedReplyToggle"
