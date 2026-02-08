@@ -215,6 +215,9 @@ class FilterService
     @params[:payload].each_with_index do |query_hash, current_index|
       @query_string += " #{build_condition_query(model_filters, query_hash, current_index).strip}"
     end
+    # #region agent log
+    File.open('/Users/gabriel/Projects/chatwoot/.cursor/debug.log', 'a') { |f| f.puts({ location: 'filter_service.rb:query_builder', message: 'final query string', data: { query_string: @query_string, filter_values: @filter_values }, timestamp: Time.now.to_i * 1000, hypothesisId: 'C' }.to_json) }
+    # #endregion
     base_relation.where(@query_string, @filter_values.with_indifferent_access)
   end
 

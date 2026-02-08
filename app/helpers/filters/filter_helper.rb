@@ -50,9 +50,12 @@ module Filters::FilterHelper
   def handle_contact_attributes(query_hash, filter_operator_value)
     attribute_key = query_hash[:attribute_key]
     query_operator = query_hash[:query_operator]
-    # Use a subquery to filter conversations by contact attributes (funnel_id, funnel_stage)
-    "#{filter_config[:table_name]}.contact_id IN " \
+    sql = "#{filter_config[:table_name]}.contact_id IN " \
       "(SELECT contacts.id FROM contacts WHERE contacts.#{attribute_key} #{filter_operator_value}) #{query_operator}"
+    # #region agent log
+    File.open('/Users/gabriel/Projects/chatwoot/.cursor/debug.log', 'a') { |f| f.puts({ location: 'filter_helper.rb:handle_contact_attributes', message: 'contact attr filter', data: { attribute_key: attribute_key, filter_operator_value: filter_operator_value, query_operator: query_operator, sql: sql, values: query_hash['values'] }, timestamp: Time.now.to_i * 1000, hypothesisId: 'C' }.to_json) }
+    # #endregion
+    sql
   end
 
   def handle_additional_attributes(query_hash, filter_operator_value, data_type)
