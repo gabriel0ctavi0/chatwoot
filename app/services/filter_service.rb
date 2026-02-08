@@ -52,6 +52,7 @@ class FilterService
     return downcase_array_values(values) if attribute_key == 'content'
     return label_filter_values(values) if attribute_key == 'labels'
     return funnel_stage_values(values) if attribute_key == 'funnel_stage'
+    return funnel_id_values(values) if attribute_key == 'funnel_id'
 
     case_insensitive_values(query_hash)
   end
@@ -62,6 +63,10 @@ class FilterService
 
   def funnel_stage_values(values)
     values.map { |x| Contact.funnel_stages[x.to_sym] }.compact
+  end
+
+  def funnel_id_values(values)
+    values.map(&:to_i).compact
   end
 
   def downcase_array_values(values)

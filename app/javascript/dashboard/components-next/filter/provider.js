@@ -237,13 +237,13 @@ export function useConversationFilterContext() {
       value: CONVERSATION_ATTRIBUTES.FUNNEL_ID,
       attributeName: t('FILTER.ATTRIBUTES.FUNNEL'),
       label: t('FILTER.ATTRIBUTES.FUNNEL'),
-      inputType: 'searchSelect',
+      inputType: 'multiSelect',
       options: funnels.value.map(funnel => ({
         id: funnel.id,
         name: funnel.name,
       })),
       dataType: 'number',
-      filterOperators: presenceOperators.value,
+      filterOperators: equalityOperators.value,
       attributeModel: 'standard',
     },
     {

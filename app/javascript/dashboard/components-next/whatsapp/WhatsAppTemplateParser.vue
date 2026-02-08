@@ -89,6 +89,9 @@ const renderedTemplate = computed(() => {
 const isFormInvalid = computed(() => {
   if (!hasVariables.value && !hasMediaHeader.value) return false;
 
+  if (hasMediaHeader.value && !processedParams.value.header?.media_url)
+    return true;
+
   if (hasVariables.value && processedParams.value.body) {
     const hasEmptyBodyVariable = Object.values(processedParams.value.body).some(
       value => !value
@@ -192,12 +195,6 @@ const sendMessage = () => {
 
   const { name, category, language, namespace } = props.template;
 
-  // Strip empty header to avoid sending an incomplete header component
-  const params = { ...processedParams.value };
-  if (params.header && !params.header.media_url) {
-    delete params.header;
-  }
-
   const payload = {
     message: renderedTemplate.value,
     templateParams: {
@@ -205,7 +202,7 @@ const sendMessage = () => {
       category,
       language,
       namespace,
-      processed_params: params,
+      processed_params: processedParams.value,
     },
   };
   emit('sendMessage', payload);

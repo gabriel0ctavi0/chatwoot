@@ -52,8 +52,6 @@ class Whatsapp::TemplateProcessorService
   def process_header_components(processed_params)
     header = processed_params['header']
     return [] if header.blank?
-    # Skip header if it only contains metadata (media_type/media_name) but no actual content
-    return [] if header['media_url'].blank? && header.keys.all? { |k| %w[media_url media_type media_name].include?(k) }
 
     header_params = build_header_params(header)
     header_params.present? ? [{ type: 'header', parameters: header_params }] : []
@@ -65,35 +63,14 @@ class Whatsapp::TemplateProcessorService
       next if value.blank?
 
       if media_url_with_type?(key, header_data)
-        media_param = upload_and_build_media_param(value, header_data['media_type'], header_data['media_name'])
+        media_name = header_data['media_name']
+        media_param = parameter_builder.build_media_parameter(value, header_data['media_type'], media_name)
         header_params << media_param if media_param
       elsif key != 'media_type' && key != 'media_name'
         header_params << parameter_builder.build_parameter(value)
       end
     end
     header_params
-  end
-
-  # Upload media to WhatsApp Media API and build a parameter using the media_id.
-  # Falls back to URL-based parameter if the upload fails.
-  def upload_and_build_media_param(url, media_type, media_name)
-    content_type = media_type_to_content_type(media_type)
-    media_id = channel.provider_service.upload_media_from_url(url, content_type)
-
-    if media_id.present?
-      parameter_builder.build_media_id_parameter(media_id, media_type.downcase, media_name)
-    else
-      parameter_builder.build_media_parameter(url, media_type, media_name)
-    end
-  end
-
-  def media_type_to_content_type(media_type)
-    case media_type&.downcase
-    when 'image' then 'image/jpeg'
-    when 'video' then 'video/mp4'
-    when 'document' then 'application/pdf'
-    else 'application/octet-stream'
-    end
   end
 
   def media_url_with_type?(key, header_data)

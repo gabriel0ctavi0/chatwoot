@@ -50,6 +50,7 @@ module Filters::FilterHelper
   def handle_contact_attributes(query_hash, filter_operator_value)
     attribute_key = query_hash[:attribute_key]
     query_operator = query_hash[:query_operator]
+    # Use a subquery to filter conversations by contact attributes (funnel_id, funnel_stage)
     "#{filter_config[:table_name]}.contact_id IN " \
       "(SELECT contacts.id FROM contacts WHERE contacts.#{attribute_key} #{filter_operator_value}) #{query_operator}"
   end
