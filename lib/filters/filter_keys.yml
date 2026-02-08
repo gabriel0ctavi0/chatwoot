@@ -38,7 +38,7 @@ conversations:
       - "is_not_present"
   team_id:
     attribute_type: "standard"
-    data_type: "number"
+    data_type: "numeric"
     filter_operators:
       - "equal_to"
       - "not_equal_to"
@@ -52,7 +52,7 @@ conversations:
       - "not_equal_to"
   display_id:
     attribute_type: "standard"
-    data_type: "Number"
+    data_type: "numeric"
     filter_operators:
       - "equal_to"
       - "not_equal_to"
@@ -60,7 +60,7 @@ conversations:
       - "does_not_contain"
   campaign_id:
     attribute_type: "standard"
-    data_type: "Number"
+    data_type: "numeric"
     filter_operators:
       - "equal_to"
       - "not_equal_to"
@@ -110,7 +110,7 @@ conversations:
       - "days_before"
   funnel_id:
     attribute_type: "contact_attribute"
-    data_type: "number"
+    data_type: "numeric"
     filter_operators:
       - "equal_to"
       - "not_equal_to"
@@ -118,7 +118,7 @@ conversations:
       - "is_not_present"
   funnel_stage:
     attribute_type: "contact_attribute"
-    data_type: "text"
+    data_type: "numeric"
     filter_operators:
       - "equal_to"
       - "not_equal_to"

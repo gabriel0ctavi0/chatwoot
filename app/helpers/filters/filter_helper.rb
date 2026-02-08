@@ -50,11 +50,10 @@ module Filters::FilterHelper
   def handle_contact_attributes(query_hash, filter_operator_value)
     attribute_key = query_hash[:attribute_key]
     query_operator = query_hash[:query_operator]
+    # If it's an enum column like funnel_stage, we might need to cast to numeric for IN clause if values are integers
+    column_cast = %w[funnel_stage funnel_id].include?(attribute_key) ? '::text::numeric' : ''
     sql = "#{filter_config[:table_name]}.contact_id IN " \
-      "(SELECT contacts.id FROM contacts WHERE contacts.#{attribute_key} #{filter_operator_value}) #{query_operator}"
-    # #region agent log
-    File.open('/Users/gabriel/Projects/chatwoot/.cursor/debug.log', 'a') { |f| f.puts({ location: 'filter_helper.rb:handle_contact_attributes', message: 'contact attr filter', data: { attribute_key: attribute_key, filter_operator_value: filter_operator_value, query_operator: query_operator, sql: sql, values: query_hash['values'] }, timestamp: Time.now.to_i * 1000, hypothesisId: 'C' }.to_json) }
-    # #endregion
+      "(SELECT contacts.id FROM contacts WHERE contacts.#{attribute_key}#{column_cast} #{filter_operator_value}) #{query_operator}"
     sql
   end
 
@@ -76,9 +75,15 @@ module Filters::FilterHelper
       tag_filter_query(query_hash, current_index)
     when 'text_case_insensitive'
       text_case_insensitive_filter(query_hash, filter_operator_value)
+    when 'numeric'
+      numeric_filter(query_hash, filter_operator_value)
     else
       default_filter(query_hash, filter_operator_value)
     end
+  end
+
+  def numeric_filter(query_hash, filter_operator_value)
+    "#{filter_config[:table_name]}.#{query_hash[:attribute_key]}::numeric #{filter_operator_value} #{query_hash[:query_operator]}"
   end
 
   def date_filter(current_filter, query_hash, filter_operator_value)

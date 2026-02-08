@@ -50,7 +50,7 @@ class FilterService
     return conversation_priority_values(values) if attribute_key == 'priority'
     return message_type_values(values) if attribute_key == 'message_type'
     return downcase_array_values(values) if attribute_key == 'content'
-    return label_filter_values(values) if attribute_key == 'labels'
+    return label_filter_values(values) if attribute_key == 'labels' || attribute_key == 'contact_tags'
     return funnel_stage_values(values) if attribute_key == 'funnel_stage'
     return funnel_id_values(values) if attribute_key == 'funnel_id'
 
@@ -62,11 +62,11 @@ class FilterService
   end
 
   def funnel_stage_values(values)
-    values.map { |x| Contact.funnel_stages[x.to_sym] }.compact
+    Array(values).map { |x| Contact.funnel_stages[x.to_sym] || x.to_i }.compact
   end
 
   def funnel_id_values(values)
-    values.map(&:to_i).compact
+    Array(values).map(&:to_i).compact
   end
 
   def downcase_array_values(values)
@@ -213,11 +213,9 @@ class FilterService
 
   def query_builder(model_filters)
     @params[:payload].each_with_index do |query_hash, current_index|
-      @query_string += " #{build_condition_query(model_filters, query_hash, current_index).strip}"
+      condition = build_condition_query(model_filters, query_hash, current_index).strip
+      @query_string += " #{condition}"
     end
-    # #region agent log
-    File.open('/Users/gabriel/Projects/chatwoot/.cursor/debug.log', 'a') { |f| f.puts({ location: 'filter_service.rb:query_builder', message: 'final query string', data: { query_string: @query_string, filter_values: @filter_values }, timestamp: Time.now.to_i * 1000, hypothesisId: 'C' }.to_json) }
-    # #endregion
     base_relation.where(@query_string, @filter_values.with_indifferent_access)
   end
 
