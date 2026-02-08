@@ -95,9 +95,6 @@ export const useFilter = ({ filteri18nKey, attributeModel }) => {
     currentUserDetails,
     activeAssigneeTab
   ) => {
-    // #region agent log
-    console.error('[DEBUG-FILTER] initializeStatusAndAssigneeFilterToModal called', { activeStatus, activeAssigneeTab });
-    // #endregion
     if (activeAssigneeTab === wootConstants.ASSIGNEE_TYPE.ME) {
       return {
         attribute_key: 'assignee_id',
