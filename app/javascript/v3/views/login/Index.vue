@@ -53,6 +53,7 @@ export default {
   },
   data() {
     return {
+      loginLogoUrl: '/full_logo.png',
       // We need to initialize the component with any
       // properties that will be used in it
       credentials: {
@@ -224,12 +225,12 @@ export default {
   >
     <section class="max-w-5xl mx-auto">
       <img
-        src="/full_logo.png"
+        :src="loginLogoUrl"
         :alt="globalConfig.installationName"
         class="block w-auto h-8 mx-auto dark:hidden"
       />
       <img
-        src="/full_logo.png"
+        :src="loginLogoUrl"
         :alt="globalConfig.installationName"
         class="hidden w-auto h-8 mx-auto dark:block"
       />

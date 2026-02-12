@@ -4,6 +4,7 @@ import { useMapGetter } from 'dashboard/composables/store';
 
 const attrs = useAttrs();
 const globalConfig = useMapGetter('globalConfig/get');
+const defaultLogoUrl = '/logo.svg';
 </script>
 
 <template>
@@ -16,7 +17,7 @@ const globalConfig = useMapGetter('globalConfig/get');
   <img
     v-else
     v-bind="attrs"
-    src="/logo.svg"
+    :src="defaultLogoUrl"
     class="rounded-lg"
   />
 </template>
